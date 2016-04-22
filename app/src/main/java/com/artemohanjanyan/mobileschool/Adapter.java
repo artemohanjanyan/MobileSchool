@@ -1,31 +1,23 @@
 package com.artemohanjanyan.mobileschool;
 
-import android.animation.AnimatorInflater;
-import android.animation.AnimatorSet;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     private List<Artist> artists;
-    private Context context;
-    private Resources resources;
 
-    public class ViewHolder extends RecyclerView.ViewHolder
-            implements DownloadCallback<Bitmap> {
-
-        public DownloadImageTask coverDownloader;
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
         public Artist artist;
 
@@ -46,40 +38,26 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             return new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Context context = getContext();
                     Intent intent = new Intent(context, DescriptionActivity.class);
-                    intent.putExtra(DescriptionActivity.NAME_EXTRA, artist.name);
-                    intent.putExtra(DescriptionActivity.COVER_EXTRA, artist.bigCover);
-                    intent.putExtra(DescriptionActivity.GENRES_EXTRA, getGenres());
-                    intent.putExtra(DescriptionActivity.PUBLISHED_EXTRA, getPublished());
-                    intent.putExtra(DescriptionActivity.DESCRIPTION_EXTRA, artist.description);
+                    intent.putExtra(DescriptionActivity.ARTIST_EXTRA, artist);
                     context.startActivity(intent);
                 }
             };
         }
 
-        @Override
-        public void onDownloaded(Bitmap bitmap) {
-            cover.setImageBitmap(bitmap);
-            AnimatorSet set = (AnimatorSet) AnimatorInflater
-                    .loadAnimator(context, R.animator.cover_animation);
-            set.setTarget(cover);
-            set.start();
+        public Context getContext() {
+            return cover.getContext();
         }
 
-        public String getGenres() {
-            return TextUtils.join(", ", artist.genres);
-        }
-
-        public String getPublished() {
-            return context.getString(R.string.published,
-                    resources.getQuantityString(R.plurals.albums, artist.albums, artist.albums),
-                    resources.getQuantityString(R.plurals.tracks, artist.tracks, artist.tracks));
+        public void downloadCover() {
+            Picasso.with(getContext())
+                    .load(artist.smallCover)
+                    .into(cover);
         }
     }
 
-    public Adapter(Context context) {
-        this.context = context;
-        this.resources = context.getResources();
+    public Adapter() {
         this.artists = new ArrayList<>();
     }
 
@@ -100,20 +78,16 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         holder.artist = artist;
 
         holder.name.setText(artist.name);
-        holder.genres.setText(holder.getGenres());
-        holder.published.setText(holder.getPublished());
+        holder.genres.setText(artist.getGenres());
+        holder.published.setText(artist.getPublished(holder.getContext()));
 
-        holder.coverDownloader = new DownloadImageTask(holder);
-        holder.coverDownloader.execute(artist.smallCover);
+        holder.downloadCover();
     }
 
     @Override
     public void onViewRecycled(ViewHolder holder) {
-        if (holder.coverDownloader != null) {
-            holder.coverDownloader.cancel(true);
-            holder.coverDownloader = null;
-        }
         holder.cover.setImageBitmap(null);
+        Picasso.with(holder.getContext()).cancelRequest(holder.cover);
     }
 
     @Override
@@ -125,5 +99,10 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         int positionStart = this.artists.size();
         this.artists.addAll(artists);
         notifyItemRangeInserted(positionStart, artists.size());
+    }
+
+    @Override
+    public void registerAdapterDataObserver(RecyclerView.AdapterDataObserver observer) {
+        super.registerAdapterDataObserver(observer);
     }
 }

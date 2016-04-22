@@ -10,12 +10,15 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
-    private static final String TAG = "ListActivity";
+
+    private static final String TAG = ListActivity.class.getSimpleName();
 
     private DownloadInfoTask downloadInfoTask;
     private static final String jsonURL = "http://cache-spb03.cdn.yandex.net/" +
@@ -40,7 +43,7 @@ public class ListActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this,
                 getResources().getConfiguration().orientation
                         == Configuration.ORIENTATION_PORTRAIT ? 1 : 2));
-        adapter = new Adapter(this);
+        adapter = new Adapter();
         recyclerView.setAdapter(adapter);
         recyclerView.setVisibility(View.VISIBLE);
 
@@ -54,6 +57,8 @@ public class ListActivity extends AppCompatActivity {
             Log.d(TAG, "Malformed URL", e);
         }
         downloadInfoTask.execute(url);
+
+        Picasso.with(this).setIndicatorsEnabled(true);
     }
 
     @Override

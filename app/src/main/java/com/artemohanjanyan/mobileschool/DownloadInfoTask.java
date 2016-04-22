@@ -59,7 +59,7 @@ public class DownloadInfoTask extends AsyncTask<URL, Void, List<Artist>> {
                                 artist.albums = reader.nextInt();
                                 break;
                             case "link":
-                                artist.link = new URL(reader.nextString());
+                                artist.link = reader.nextString();
                                 break;
                             case "description":
                                 artist.description = reader.nextString();
@@ -68,7 +68,7 @@ public class DownloadInfoTask extends AsyncTask<URL, Void, List<Artist>> {
                                 reader.beginObject();
                                 for (int i = 0; i < 2; ++i) {
                                     String size = reader.nextName();
-                                    URL cover = new URL(reader.nextString());
+                                    String cover = reader.nextString();
                                     switch (size) {
                                         case "small":
                                             artist.smallCover = cover;
@@ -85,6 +85,7 @@ public class DownloadInfoTask extends AsyncTask<URL, Void, List<Artist>> {
                                 break;
                             default:
                                 Log.d(TAG, "Unknown name '" + name + "'");
+                                reader.skipValue();
                                 break;
                         }
                     } catch (MalformedURLException e) {
