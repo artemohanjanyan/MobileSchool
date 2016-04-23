@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.os.OperationCanceledException;
 import android.text.TextUtils;
 import android.util.JsonReader;
 import android.util.Log;
@@ -29,6 +30,10 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
         super(context);
     }
 
+    /**
+     * Loads information about artists.
+     * @return list of artists on success, null if IO error happens.
+     */
     @Override
     public List<Artist> loadInBackground() {
         Log.d(TAG, "load started");
@@ -38,7 +43,13 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
 
         Cursor cursor = getAll(db);
         if (cursor.getCount() == 0) {
-            download();
+            try {
+                if (!download()) {
+                    return null;
+                }
+            } catch (IOException e) {
+                return null;
+            }
             cursor = getAll(db);
         }
 
@@ -61,7 +72,11 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
             artist.smallCover   = cursor.getString(7);
             artist.bigCover     = cursor.getString(8);
             artists.add(artist);
-        } while (cursor.moveToNext());
+        } while (cursor.moveToNext() && !isLoadInBackgroundCanceled());
+
+        if (isLoadInBackgroundCanceled()) {
+            throw new OperationCanceledException();
+        }
 
         return artists;
     }
@@ -82,28 +97,35 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
         super.onStartLoading();
     }
 
-    private void download() {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        SQLiteStatement statement = db.compileStatement(String.format(
-                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) " +
-                        "VALUES (?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ? )",
-                DbHelper.TABLE_NAME,
-                DbHelper.ID,
-                DbHelper.NAME,
-                DbHelper.GENRES,
-                DbHelper.TRACKS,
-                DbHelper.ALBUMS,
-                DbHelper.LINK,
-                DbHelper.DESCRIPTION,
-                DbHelper.SMALL_COVER,
-                DbHelper.BIG_COVER));
+    /**
+     * Downloads JSON from the Internet, parses it and writes parsed data to database.
+     * @return true on success, false otherwise.
+     * @throws IOException if some IO error happens.
+     */
+    private boolean download() throws IOException {
+        try (
+                JsonReader reader = new JsonReader(new InputStreamReader(
+                        new URL(jsonURL).openStream(), "UTF-8"));
+                SQLiteDatabase db = dbHelper.getWritableDatabase()) {
 
-        try (JsonReader reader = new JsonReader(new InputStreamReader(
-                new URL(jsonURL).openStream(), "UTF-8"))) {
+            SQLiteStatement statement = db.compileStatement(String.format(
+                    "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) " +
+                            "VALUES (?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ? )",
+                    DbHelper.TABLE_NAME,
+                    DbHelper.ID,
+                    DbHelper.NAME,
+                    DbHelper.GENRES,
+                    DbHelper.TRACKS,
+                    DbHelper.ALBUMS,
+                    DbHelper.LINK,
+                    DbHelper.DESCRIPTION,
+                    DbHelper.SMALL_COVER,
+                    DbHelper.BIG_COVER));
+
             db.beginTransaction();
 
             reader.beginArray();
-            while (reader.hasNext()) {
+            while (reader.hasNext() && !isLoadInBackgroundCanceled()) {
                 reader.beginObject();
                 while (reader.hasNext()) {
                     String name = reader.nextName();
@@ -165,18 +187,28 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
                 long rowId = statement.executeInsert();
                 //noinspection StatementWithEmptyBody
                 if (rowId < 0) {
-                    // TODO
+                    return false;
                 }
             }
+
+            if (isLoadInBackgroundCanceled()) {
+                throw new OperationCanceledException();
+            }
+
             reader.endArray();
 
             db.setTransactionSuccessful();
             db.endTransaction();
-        } catch (IOException e) {
-            Log.d(TAG, "unknown error", e);
         }
+
+        return true;
     }
 
+    /**
+     * Gets all artists from database.
+     * @param db database to query.
+     * @return {@link Cursor}, positioned before the first entry.
+     */
     private Cursor getAll(SQLiteDatabase db) {
         return db.query(DbHelper.TABLE_NAME, null, null, null, null, null, null);
     }

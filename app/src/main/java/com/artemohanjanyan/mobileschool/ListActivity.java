@@ -22,6 +22,9 @@ public class ListActivity extends AppCompatActivity
     private ProgressBar progressBar;
     private Adapter adapter;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +46,7 @@ public class ListActivity extends AppCompatActivity
 
         // Download JSON
         getLoaderManager().initLoader(0, null, this);
+        // restartLoader
     }
 
     @Override
@@ -60,7 +64,7 @@ public class ListActivity extends AppCompatActivity
     public void onLoadFinished(Loader<List<Artist>> loader, List<Artist> data) {
         if (data != null && data.size() != 0) {
             progressBar.setVisibility(View.INVISIBLE);
-            adapter.addArtists(data);
+            adapter.setArtists(data);
         } else {
             Toast.makeText(getApplicationContext(),
                     getString(R.string.error_toast), Toast.LENGTH_SHORT).show();

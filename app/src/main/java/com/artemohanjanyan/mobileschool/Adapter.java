@@ -3,7 +3,7 @@ package com.artemohanjanyan.mobileschool;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+//import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
-    public static final String TAG = Adapter.class.getSimpleName();
+    //public static final String TAG = Adapter.class.getSimpleName();
 
     private List<Artist> artists;
 
@@ -88,7 +88,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     @Override
     public void onViewRecycled(ViewHolder holder) {
-        Log.d(TAG, "onViewRecycled");
+        //Log.d(TAG, "onViewRecycled");
         holder.cover.setImageBitmap(null);
         ApplicationContext.getInstance().getPicasso()
                 .cancelRequest(holder.cover);
@@ -99,10 +99,10 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         return artists.size();
     }
 
-    public void addArtists(List<Artist> artists) {
-        int positionStart = this.artists.size();
-        this.artists.addAll(artists);
-        notifyItemRangeInserted(positionStart, artists.size());
+    public void setArtists(List<Artist> artists) {
+        notifyItemRangeRemoved(0, this.artists.size());
+        this.artists = artists;
+        notifyItemRangeInserted(0, this.artists.size());
     }
 
     @Override
