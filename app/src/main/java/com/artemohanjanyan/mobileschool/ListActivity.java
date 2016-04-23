@@ -1,5 +1,7 @@
 package com.artemohanjanyan.mobileschool;
 
+import android.app.LoaderManager;
+import android.content.Loader;
 import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,22 +12,14 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
-public class ListActivity extends AppCompatActivity {
+public class ListActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<List<Artist>> {
 
     private static final String TAG = ListActivity.class.getSimpleName();
 
-    private DownloadInfoTask downloadInfoTask;
-    private static final String jsonURL = "http://cache-spb03.cdn.yandex.net/" +
-            "download.cdn.yandex.net/mobilization-2016/artists.json";
-
     private ProgressBar progressBar;
-    private RecyclerView recyclerView;
     private Adapter adapter;
 
     @Override
@@ -36,7 +30,7 @@ public class ListActivity extends AppCompatActivity {
         // UI components
         progressBar = (ProgressBar) findViewById(R.id.list_progress_bar);
 
-        recyclerView = (RecyclerView) findViewById(R.id.list_recycler_view);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list_recycler_view);
         assert recyclerView != null;
         recyclerView.setHasFixedSize(true);
 
@@ -48,37 +42,33 @@ public class ListActivity extends AppCompatActivity {
         recyclerView.setVisibility(View.VISIBLE);
 
         // Download JSON
-        downloadInfoTask = new DownloadInfoTask(this);
-        URL url = null;
-        try {
-            url = new URL(jsonURL);
-        } catch (MalformedURLException e) {
-            // URL is well-formed
-            Log.d(TAG, "Malformed URL", e);
-        }
-        downloadInfoTask.execute(url);
-
-        Picasso.with(this).setIndicatorsEnabled(true);
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
     protected void onDestroy() {
-        if (downloadInfoTask != null) {
-            downloadInfoTask.cancel(true);
-            downloadInfoTask = null;
-        }
-
         super.onDestroy();
     }
 
-    public void onJsonDownloaded(List<Artist> artists) {
-        if (artists != null) {
-            downloadInfoTask = null;
+    @Override
+    public Loader<List<Artist>> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "loader created");
+        return new InfoLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Artist>> loader, List<Artist> data) {
+        if (data != null && data.size() != 0) {
             progressBar.setVisibility(View.INVISIBLE);
-            adapter.addArtists(artists);
+            adapter.addArtists(data);
         } else {
             Toast.makeText(getApplicationContext(),
                     getString(R.string.error_toast), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Artist>> loader) {
+
     }
 }

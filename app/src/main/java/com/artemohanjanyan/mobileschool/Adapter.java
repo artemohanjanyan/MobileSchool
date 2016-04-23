@@ -3,18 +3,20 @@ package com.artemohanjanyan.mobileschool;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+
+    public static final String TAG = Adapter.class.getSimpleName();
+
     private List<Artist> artists;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -51,7 +53,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         }
 
         public void downloadCover() {
-            Picasso.with(getContext())
+            ApplicationContext.getInstance().getPicasso()
                     .load(artist.smallCover)
                     .into(cover);
         }
@@ -86,8 +88,10 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     @Override
     public void onViewRecycled(ViewHolder holder) {
+        Log.d(TAG, "onViewRecycled");
         holder.cover.setImageBitmap(null);
-        Picasso.with(holder.getContext()).cancelRequest(holder.cover);
+        ApplicationContext.getInstance().getPicasso()
+                .cancelRequest(holder.cover);
     }
 
     @Override

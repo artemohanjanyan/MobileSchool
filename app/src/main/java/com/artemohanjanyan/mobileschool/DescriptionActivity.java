@@ -6,11 +6,13 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
 public class DescriptionActivity extends AppCompatActivity {
+
+//    private static final String TAG = DescriptionActivity.class.getSimpleName();
+
     public static final String ARTIST_EXTRA = "artist";
 
+    @SuppressWarnings("FieldCanBeLocal")
     private ImageView cover;
     @SuppressWarnings("FieldCanBeLocal")
     private TextView genres, published, description;
@@ -36,9 +38,7 @@ public class DescriptionActivity extends AppCompatActivity {
         published.setText(artist.getPublished(this));
         description.setText(artist.description);
 
-        Picasso.with(this)
-                .setIndicatorsEnabled(true);
-        Picasso.with(cover.getContext())
+        ApplicationContext.getInstance().getPicasso()
                 .load(artist.bigCover)
                 .into(cover);
     }
