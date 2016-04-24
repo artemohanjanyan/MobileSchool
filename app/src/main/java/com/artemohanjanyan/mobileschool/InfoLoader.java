@@ -22,12 +22,14 @@ import java.util.regex.Pattern;
 public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
 
     public static final String REFRESH_EXTRA = "refresh";
+    public static final String SEARCH_EXTRA = "search";
 
     private static final String TAG = InfoLoader.class.getSimpleName();
     private static final String jsonURL = "http://cache-spb03.cdn.yandex.net/" +
             "download.cdn.yandex.net/mobilization-2016/artists.json";
     private List<Artist> artists;
     private volatile boolean shouldRefresh = false;
+    private volatile String searchString = "";
 
     /**
      * Creates loader.
@@ -39,6 +41,7 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
         super(context);
         if (args != null) {
             shouldRefresh = args.getBoolean(REFRESH_EXTRA);
+            searchString = args.getString(SEARCH_EXTRA, "");
         }
     }
 
@@ -52,18 +55,22 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
         Log.d(TAG, "load started");
 
         DbHelper dbHelper = new DbHelper(getContext());
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            Cursor cursor = getAll(db);
-            if (cursor.getCount() == 0 || shouldRefresh) {
-                try {
-                    if (!download(db)) {
-                        return null;
-                    }
-                } catch (IOException e) {
+
+        if (shouldRefresh) {
+            try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+                if (!download(db)) {
                     return null;
                 }
-                cursor = getAll(db);
+            } catch (IOException e) {
+                return null;
             }
+        }
+
+        try (SQLiteDatabase db = dbHelper.getReadableDatabase();
+             Cursor cursor = db.query(DbHelper.TABLE_NAME, null,
+                     searchString.equals("") ? null : DbHelper.TABLE_NAME + " MATCH ?",
+                     searchString.equals("") ? null : new String[]{searchString},
+                     null, null, null)) {
 
             List<Artist> artists = new ArrayList<>(cursor.getCount());
 
@@ -217,12 +224,4 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
         return true;
     }
 
-    /**
-     * Gets all artists from database.
-     * @param db database to query.
-     * @return {@link Cursor}, positioned before the first entry.
-     */
-    private Cursor getAll(SQLiteDatabase db) {
-        return db.query(DbHelper.TABLE_NAME, null, null, null, null, null, null);
-    }
 }

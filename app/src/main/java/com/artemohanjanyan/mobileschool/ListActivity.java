@@ -1,6 +1,9 @@
 package com.artemohanjanyan.mobileschool;
 
 import android.app.LoaderManager;
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -9,7 +12,10 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -48,6 +54,31 @@ public class ListActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.list_menu, menu);
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.list_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+
+            swipeRefreshLayout.setRefreshing(true);
+
+            Bundle bundle = new Bundle();
+            bundle.putString(InfoLoader.SEARCH_EXTRA, query);
+            getLoaderManager().restartLoader(0, bundle, ListActivity.this);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
     }
@@ -65,7 +96,7 @@ public class ListActivity extends AppCompatActivity
             adapter.setArtists(data);
         } else {
             Toast.makeText(getApplicationContext(),
-                    getString(R.string.error_toast), Toast.LENGTH_SHORT).show();
+                    getString(R.string.no_results_toast), Toast.LENGTH_SHORT).show();
         }
     }
 

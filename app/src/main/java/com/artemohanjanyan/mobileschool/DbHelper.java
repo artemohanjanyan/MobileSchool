@@ -9,7 +9,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private static final String TAG = DbHelper.class.getSimpleName();
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "artists.db";
 
     public static final String
@@ -33,7 +33,7 @@ public class DbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.d(TAG, "db created");
-        db.execSQL("CREATE TABLE " + TABLE_NAME + "(" +
+        db.execSQL("CREATE VIRTUAL TABLE " + TABLE_NAME + " USING FTS3 (" +
                 ID + " INTEGER PRIMARY KEY," +
                 NAME + " TEXT," +
                 GENRES + " TEXT," +

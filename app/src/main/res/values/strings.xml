@@ -1,9 +1,10 @@
 <resources>
     <string name="app_name">Исполнители</string>
 
-    <string name="error_toast">Ошибка загрузки, проверьте интернет-соединение</string>
+    <string name="no_results_toast">Исполнителей не найдено</string>
 
     <string name="search">Поиск</string>
+    <string name="search_hint">Что вы ищете?</string>
 
     <string name="published">%1$s, %2$s</string>
     <plurals name="albums">
