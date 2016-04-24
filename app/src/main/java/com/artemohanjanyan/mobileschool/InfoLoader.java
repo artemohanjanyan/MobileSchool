@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.os.Bundle;
 import android.os.OperationCanceledException;
 import android.text.TextUtils;
 import android.util.JsonReader;
@@ -20,65 +21,77 @@ import java.util.regex.Pattern;
 
 public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
 
+    public static final String REFRESH_EXTRA = "refresh";
+
     private static final String TAG = InfoLoader.class.getSimpleName();
     private static final String jsonURL = "http://cache-spb03.cdn.yandex.net/" +
             "download.cdn.yandex.net/mobilization-2016/artists.json";
-    private DbHelper dbHelper;
     private List<Artist> artists;
+    private volatile boolean shouldRefresh = false;
 
-    public InfoLoader(Context context) {
+    /**
+     * Creates loader.
+     * @param context context
+     * @param args if it contains true at {@link InfoLoader#REFRESH_EXTRA},
+     *             then all the data will be downloaded from the Internet, independently of caching.
+     */
+    public InfoLoader(Context context, Bundle args) {
         super(context);
+        if (args != null) {
+            shouldRefresh = args.getBoolean(REFRESH_EXTRA);
+        }
     }
 
     /**
      * Loads information about artists.
+     * May download data from the web, depending on request and cache availability.
      * @return list of artists on success, null if IO error happens.
      */
     @Override
     public List<Artist> loadInBackground() {
         Log.d(TAG, "load started");
 
-        dbHelper = new DbHelper(getContext());
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        Cursor cursor = getAll(db);
-        if (cursor.getCount() == 0) {
-            try {
-                if (!download()) {
+        DbHelper dbHelper = new DbHelper(getContext());
+        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+            Cursor cursor = getAll(db);
+            if (cursor.getCount() == 0 || shouldRefresh) {
+                try {
+                    if (!download(db)) {
+                        return null;
+                    }
+                } catch (IOException e) {
                     return null;
                 }
-            } catch (IOException e) {
-                return null;
+                cursor = getAll(db);
             }
-            cursor = getAll(db);
-        }
 
-        List<Artist> artists = new ArrayList<>(cursor.getCount());
+            List<Artist> artists = new ArrayList<>(cursor.getCount());
 
-        if (!cursor.moveToFirst()) {
+            if (!cursor.moveToFirst()) {
+                return artists;
+            }
+
+            do {
+                Artist artist = new Artist();
+                artist.id = cursor.getInt(0);
+                artist.name = cursor.getString(1);
+                artist.genres = Arrays.asList(cursor.getString(2)
+                        .split(Pattern.quote(DbHelper.DELIMITER)));
+                artist.tracks = cursor.getInt(3);
+                artist.albums = cursor.getInt(4);
+                artist.link = cursor.getString(5);
+                artist.description = cursor.getString(6);
+                artist.smallCover = cursor.getString(7);
+                artist.bigCover = cursor.getString(8);
+                artists.add(artist);
+            } while (cursor.moveToNext() && !isLoadInBackgroundCanceled());
+
+            if (isLoadInBackgroundCanceled()) {
+                throw new OperationCanceledException();
+            }
+
             return artists;
         }
-
-        do {
-            Artist artist = new Artist();
-            artist.id           = cursor.getInt(0);
-            artist.name         = cursor.getString(1);
-            artist.genres       = Arrays.asList(cursor.getString(2)
-                                        .split(Pattern.quote(DbHelper.DELIMITER)));
-            artist.tracks       = cursor.getInt(3);
-            artist.albums       = cursor.getInt(4);
-            artist.link         = cursor.getString(5);
-            artist.description  = cursor.getString(6);
-            artist.smallCover   = cursor.getString(7);
-            artist.bigCover     = cursor.getString(8);
-            artists.add(artist);
-        } while (cursor.moveToNext() && !isLoadInBackgroundCanceled());
-
-        if (isLoadInBackgroundCanceled()) {
-            throw new OperationCanceledException();
-        }
-
-        return artists;
     }
 
     @Override
@@ -102,12 +115,10 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
      * @return true on success, false otherwise.
      * @throws IOException if some IO error happens.
      */
-    private boolean download() throws IOException {
+    private boolean download(SQLiteDatabase db) throws IOException {
         try (
-                JsonReader reader = new JsonReader(new InputStreamReader(
-                        new URL(jsonURL).openStream(), "UTF-8"));
-                SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-
+                    JsonReader reader = new JsonReader(new InputStreamReader(
+                        new URL(jsonURL).openStream(), "UTF-8"))) {
             SQLiteStatement statement = db.compileStatement(String.format(
                     "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) " +
                             "VALUES (?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ? )",
@@ -122,7 +133,10 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
                     DbHelper.SMALL_COVER,
                     DbHelper.BIG_COVER));
 
+            // Execute all queries as one transaction.
+            // It is faster, and old data will be kept if some exception is thrown.
             db.beginTransaction();
+            db.delete(DbHelper.TABLE_NAME, null, null);
 
             reader.beginArray();
             while (reader.hasNext() && !isLoadInBackgroundCanceled()) {
@@ -177,7 +191,7 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
                             reader.endObject();
                             break;
                         default:
-                            Log.d(TAG, "Unknown name '" + name + "'");
+                            Log.w(TAG, "Unknown name '" + name + "'");
                             reader.skipValue();
                             break;
                     }
@@ -185,7 +199,6 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
                 reader.endObject();
 
                 long rowId = statement.executeInsert();
-                //noinspection StatementWithEmptyBody
                 if (rowId < 0) {
                     return false;
                 }

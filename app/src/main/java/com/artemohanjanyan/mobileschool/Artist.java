@@ -20,9 +20,16 @@ public class Artist implements Parcelable {
     public String description;
     public String smallCover, bigCover;
 
+    /**
+     * Creates artists, all fields are set to null.
+     */
     public Artist() {
     }
 
+    /**
+     * Creates an instance from parcel.
+     * @param in parcel.
+     */
     protected Artist(Parcel in) {
         id = in.readInt();
         name = in.readString();
@@ -65,10 +72,18 @@ public class Artist implements Parcelable {
         }
     };
 
+    /**
+     * Returns genres as a comma-separated string.
+     */
     public String getGenres() {
         return TextUtils.join(", ", genres);
     }
 
+    /**
+     * Returns a string, which describes how many albums and songs artist has published.<br>
+     * Forms of nouns correspond to numerals (e.g. 1 album, 2 albums).
+     * @param context context used to get access to {@link Resources}.
+     */
     public String getPublished(Context context) {
         Resources resources = context.getResources();
         return context.getString(R.string.published,

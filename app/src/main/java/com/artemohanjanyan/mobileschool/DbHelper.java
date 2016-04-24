@@ -26,7 +26,6 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public static final String DELIMITER = "$";
 
-    @SuppressWarnings("unused")
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }

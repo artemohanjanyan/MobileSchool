@@ -1,14 +1,17 @@
 package com.artemohanjanyan.mobileschool;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class DescriptionActivity extends AppCompatActivity {
 
-//    private static final String TAG = DescriptionActivity.class.getSimpleName();
+    private static final String TAG = DescriptionActivity.class.getSimpleName();
 
     public static final String ARTIST_EXTRA = "artist";
 
@@ -41,5 +44,19 @@ public class DescriptionActivity extends AppCompatActivity {
         ApplicationContext.getInstance().getPicasso()
                 .load(artist.bigCover)
                 .into(cover);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.description_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(artist.link));
+        startActivity(intent);
+        return true;
     }
 }

@@ -3,7 +3,8 @@
 
     <string name="error_toast">Ошибка загрузки, проверьте интернет-соединение</string>
 
-    <string name="cover_description"> </string>
+    <string name="search">Поиск</string>
+
     <string name="published">%1$s, %2$s</string>
     <plurals name="albums">
         <item quantity="one">%d альбом</item>
@@ -17,7 +18,9 @@
     </plurals>
 
     <string name="description">Описание</string>
+    <string name="website">Сайт</string>
 
+    <string name="blank_string"> </string>
 
     <string name="sample_description">Instant run-off voting is a system for selecting the most preferred candidate in an election. At the beginning of the process, each voter ranks the candidates from most preferred to least preferred. A series of automated voting rounds are then held to determine the overall winner.
 In each round, each voter casts a single vote for his most preferred remaining candidate. If a candidate receives strictly more than 50% of the votes cast in that round, that candidate is declared the winner of the election. Otherwise, the candidate with the fewest votes in that round is eliminated, and another round is held. If multiple candidates are tied for the least number of votes, they are all eliminated. If all the candidates are eliminated, the election ends without a winner.

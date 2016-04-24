@@ -22,7 +22,7 @@
             android:id="@+id/item_cover"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:contentDescription="@string/cover_description" />
+            android:contentDescription="@string/blank_string" />
 
         <RelativeLayout
             android:layout_width="0dp"

@@ -7,6 +7,9 @@ import com.squareup.picasso.Cache;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 
+/**
+ * Singleton class, which holds {@link Picasso} instance.
+ */
 public class ApplicationContext extends Application {
     private static ApplicationContext instance;
     private Picasso picasso;
@@ -19,6 +22,10 @@ public class ApplicationContext extends Application {
         return instance;
     }
 
+    /**
+     * Returns application-global {@link Picasso} instance. <br>
+     * LRU memory cache is set up to be ~34% of the available application RAM.
+     */
     public Picasso getPicasso() {
         if (picasso == null) {
             ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
@@ -26,7 +33,9 @@ public class ApplicationContext extends Application {
             // Target ~34% of the available heap.
             Cache cache = new LruCache(1024 * 1024 * memoryClass / 3);;
             picasso = new Picasso.Builder(this).memoryCache(cache).build();
-            picasso.setIndicatorsEnabled(true);
+            if (BuildConfig.DEBUG) {
+                picasso.setIndicatorsEnabled(true);
+            }
         }
 
         return picasso;
