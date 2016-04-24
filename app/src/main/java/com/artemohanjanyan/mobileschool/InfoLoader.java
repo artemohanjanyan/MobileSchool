@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Loads description of artists asynchronously.
  * Since number of artists is relatively small,
+ * loader returns result of query an a list for simplicity.
  */
 public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
 
