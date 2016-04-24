@@ -12,8 +12,8 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "artists.db";
 
+    public static final String TABLE_NAME = "artists";
     public static final String
-            TABLE_NAME = "artists",
             ID = "_ID",
             NAME = "NAME",
             GENRES = "GENRES",
@@ -24,6 +24,9 @@ public class DbHelper extends SQLiteOpenHelper {
             SMALL_COVER = "SMALL_COVER",
             BIG_COVER = "BIG_COVER";
 
+    /**
+     * Genres in GENRES field in the database are separated by this string.
+     */
     public static final String DELIMITER = "$";
 
     public DbHelper(Context context) {

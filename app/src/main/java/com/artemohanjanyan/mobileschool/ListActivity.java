@@ -26,7 +26,7 @@ public class ListActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<List<Artist>> {
 
     private static final String TAG = ListActivity.class.getSimpleName();
-    private static final String FIRST_LAUNCH_FLAG = "firts launch flag";
+    private static final String FIRST_LAUNCH_FLAG = "first launch flag";
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private Adapter adapter;
@@ -76,6 +76,8 @@ public class ListActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.list_menu, menu);
 
+        // Setup SearchView
+
         MenuItem item = menu.findItem(R.id.list_search);
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -110,8 +112,7 @@ public class ListActivity extends AppCompatActivity
             view.setIconified(false);
             view.requestFocusFromTouch();
         }
-
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override
@@ -146,6 +147,7 @@ public class ListActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<List<Artist>> loader) {
         Log.d(TAG, "loader reset");
+        // Should remove reference to Loader's data.
         adapter.dropArtists();
     }
 }

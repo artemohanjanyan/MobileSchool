@@ -19,6 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * Loads description of artists asynchronously.
+ * Since number of artists is relatively small,
+ */
 public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
 
     public static final String REFRESH_EXTRA = "refresh";
@@ -40,7 +44,7 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
     public InfoLoader(Context context, Bundle args) {
         super(context);
         if (args != null) {
-            shouldRefresh = args.getBoolean(REFRESH_EXTRA);
+            shouldRefresh = args.getBoolean(REFRESH_EXTRA, false);
             searchString = args.getString(SEARCH_EXTRA, "");
         }
     }
@@ -48,7 +52,7 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
     /**
      * Loads information about artists.
      * May download data from the web, depending on request and cache availability.
-     * @return list of artists on success, null if IO error happens.
+     * @return list of artists on success, empty list if IO error happens.
      */
     @Override
     public List<Artist> loadInBackground() {
@@ -72,6 +76,7 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
                      searchString.equals("") ? null : new String[]{searchString},
                      null, null, null)) {
 
+            // Reserve enough capacity.
             List<Artist> artists = new ArrayList<>(cursor.getCount());
 
             if (!cursor.moveToFirst()) {

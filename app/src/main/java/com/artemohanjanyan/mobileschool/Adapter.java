@@ -89,6 +89,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     @Override
     public void onViewRecycled(ViewHolder holder) {
         holder.cover.setImageBitmap(null);
+        // Stop unnecessary image loading
         ApplicationContext.getInstance().getPicasso()
                 .cancelRequest(holder.cover);
     }
@@ -114,7 +115,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     }
 
     /**
-     * Sets list of displayed artists.
+     * Sets list of displayed artists and shows artists.
      * @param artists list of artists to be displayed. Keeps the reference to this list
      *                until {@link Adapter#dropArtists()} is called.
      */
@@ -125,7 +126,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     }
 
     /**
-     * Drops the list of displayed artists.
+     * Removes the reference to the list of displayed artists.
      */
     public void dropArtists() {
         notifyItemRangeRemoved(0, artists.size());

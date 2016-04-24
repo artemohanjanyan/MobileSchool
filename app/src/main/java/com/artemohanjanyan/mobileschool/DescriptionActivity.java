@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -20,7 +21,6 @@ public class DescriptionActivity extends AppCompatActivity {
     @SuppressWarnings("FieldCanBeLocal")
     private TextView genres, published, description;
 
-    @SuppressWarnings("FieldCanBeLocal")
     private Artist artist;
 
     @Override
@@ -55,6 +55,8 @@ public class DescriptionActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.description_website) {
+            // Open artist's web page.
+            Log.d(TAG, "Open web page");
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(artist.link));
             startActivity(intent);
