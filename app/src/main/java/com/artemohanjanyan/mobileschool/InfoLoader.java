@@ -59,10 +59,10 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
         if (shouldRefresh) {
             try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
                 if (!download(db)) {
-                    return null;
+                    return new ArrayList<>();
                 }
             } catch (IOException e) {
-                return null;
+                return new ArrayList<>();
             }
         }
 

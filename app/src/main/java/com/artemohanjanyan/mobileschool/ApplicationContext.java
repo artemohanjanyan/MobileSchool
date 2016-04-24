@@ -31,7 +31,7 @@ public class ApplicationContext extends Application {
             ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
             int memoryClass = am.getMemoryClass();
             // Target ~34% of the available heap.
-            Cache cache = new LruCache(1024 * 1024 * memoryClass / 3);
+            Cache cache = new LruCache(1024 * 1024 * memoryClass / 2);
             picasso = new Picasso.Builder(this).memoryCache(cache).build();
 //            if (BuildConfig.DEBUG) {
 //                picasso.setIndicatorsEnabled(true);

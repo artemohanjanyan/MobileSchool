@@ -2,6 +2,7 @@
     <string name="app_name">Исполнители</string>
 
     <string name="no_results_toast">Исполнителей не найдено</string>
+    <string name="pull_to_download">Потяните вниз чтобы загрузить список исполнителей</string>
 
     <string name="search">Поиск</string>
     <string name="search_hint">Что вы ищете?</string>
