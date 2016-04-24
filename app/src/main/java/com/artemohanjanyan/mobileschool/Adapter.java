@@ -1,5 +1,7 @@
 package com.artemohanjanyan.mobileschool;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -8,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -96,14 +97,17 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     public void onViewAttachedToWindow(ViewHolder holder) {
         // Start animation if this item hasn't been showed yet.
         if (holder.getAdapterPosition() > lastPosition) {
-            holder.view.startAnimation(AnimationUtils
-                    .loadAnimation(holder.view.getContext(), R.anim.item_animation));
+            AnimatorSet set = (AnimatorSet) AnimatorInflater
+                    .loadAnimator(holder.view.getContext(), R.animator.list_item_appearance);
+            set.setTarget(holder.view);
+            set.start();
             lastPosition = holder.getAdapterPosition();
         }
     }
 
     @Override
     public void onViewDetachedFromWindow(ViewHolder holder) {
+        // Stop animation
         holder.view.clearAnimation();
     }
 
