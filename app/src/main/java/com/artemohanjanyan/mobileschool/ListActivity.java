@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -20,13 +21,12 @@ import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import java.util.List;
-
 public class ListActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<List<Artist>> {
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = ListActivity.class.getSimpleName();
     private static final String FIRST_LAUNCH_FLAG = "first launch flag";
+    private static final String LAST_POSITION = "last position";
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private Adapter adapter;
@@ -42,7 +42,7 @@ public class ListActivity extends AppCompatActivity
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                adapter.dropArtists();
+                adapter.dropCursor();
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(InfoLoader.REFRESH_EXTRA, true);
                 getLoaderManager().restartLoader(0, bundle, ListActivity.this);
@@ -60,11 +60,12 @@ public class ListActivity extends AppCompatActivity
         recyclerView.setAdapter(adapter);
         recyclerView.setVisibility(View.VISIBLE);
 
-        // Download JSON
+        // Get data
         SharedPreferences preferences = getSharedPreferences(TAG, 0);
         if (preferences.getBoolean(FIRST_LAUNCH_FLAG, true)) {
+            // Invite to pull to download if app is run for the first time.
             Toast.makeText(getApplicationContext(),
-                    getString(R.string.pull_to_download), Toast.LENGTH_SHORT).show();
+                    getString(R.string.pull_to_download), Toast.LENGTH_LONG).show();
             preferences.edit().putBoolean(FIRST_LAUNCH_FLAG, false).apply();
         } else {
             getLoaderManager().initLoader(0, null, this);
@@ -73,11 +74,23 @@ public class ListActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // Avoid unnecessary animation.
+        outState.putInt(LAST_POSITION, adapter.getLastPosition());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        adapter.setLastPosition(savedInstanceState.getInt(LAST_POSITION));
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.list_menu, menu);
 
         // Setup SearchView
-
         MenuItem item = menu.findItem(R.id.list_search);
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -88,13 +101,13 @@ public class ListActivity extends AppCompatActivity
         MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                adapter.dropArtists();
+                adapter.dropCursor();
                 return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                adapter.dropArtists();
+                adapter.dropCursor();
                 getLoaderManager().restartLoader(0, null, ListActivity.this);
                 searchView.clearFocus();
                 return true;
@@ -108,6 +121,7 @@ public class ListActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         SearchView view = (SearchView) item.getActionView();
         if (item.getItemId() == R.id.list_search) {
+            // Focuses on the text input field so that virtual keyboard appears.
             view.setFocusable(true);
             view.setIconified(false);
             view.requestFocusFromTouch();
@@ -129,25 +143,25 @@ public class ListActivity extends AppCompatActivity
     }
 
     @Override
-    public Loader<List<Artist>> onCreateLoader(int id, Bundle args) {
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "loader created");
         return new InfoLoader(this, args);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<Artist>> loader, List<Artist> data) {
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         swipeRefreshLayout.setRefreshing(false);
-        if (data.size() == 0) {
+        if (data.getCount() == 0) {
             Toast.makeText(getApplicationContext(),
                         getString(R.string.no_results_toast), Toast.LENGTH_SHORT).show();
         }
-        adapter.setArtists(data);
+        adapter.setCursor(data);
     }
 
     @Override
-    public void onLoaderReset(Loader<List<Artist>> loader) {
+    public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(TAG, "loader reset");
         // Should remove reference to Loader's data.
-        adapter.dropArtists();
+        adapter.dropCursor();
     }
 }

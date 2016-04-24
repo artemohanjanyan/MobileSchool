@@ -2,6 +2,7 @@ package com.artemohanjanyan.mobileschool;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,18 +12,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Adapter for displaying artists' preview.
- * Stores artists in a {@link List}.
  */
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     public static final String TAG = Adapter.class.getSimpleName();
 
-    private List<Artist> artists;
+    private Cursor cursor;
     private int lastPosition = -1;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -48,7 +45,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
      * Creates adapter with empty list of artists.
      */
     public Adapter() {
-        this.artists = new ArrayList<>();
+        this.cursor = null;
     }
 
     @Override
@@ -73,7 +70,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Artist artist = artists.get(position);
+        cursor.moveToPosition(position);
+        Artist artist = new Artist(cursor);
 
         holder.artist = artist;
 
@@ -111,26 +109,44 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return artists.size();
+        return cursor != null ? cursor.getCount() : 0;
     }
 
     /**
-     * Sets list of displayed artists and shows artists.
-     * @param artists list of artists to be displayed. Keeps the reference to this list
-     *                until {@link Adapter#dropArtists()} is called.
+     * Set cursor pointing to artists' information.
+     * @param cursor cursor pointing to the information to be displayed.
+     *                Adapter keeps the reference to this cursor
+     *                until {@link Adapter#dropCursor()} is called.
      */
-    public void setArtists(List<Artist> artists) {
-        dropArtists();
-        this.artists = artists;
-        notifyItemRangeInserted(0, this.artists.size());
+    public void setCursor(Cursor cursor) {
+        dropCursor();
+        this.cursor = cursor;
+        notifyItemRangeInserted(0, this.cursor.getCount());
     }
 
     /**
-     * Removes the reference to the list of displayed artists.
+     * Removes the reference to the cursor.
      */
-    public void dropArtists() {
-        notifyItemRangeRemoved(0, artists.size());
-        artists = new ArrayList<>();
+    public void dropCursor() {
+        notifyItemRangeRemoved(0, getItemCount());
+        cursor = null;
         lastPosition = -1;
+    }
+
+    /**
+     * Returns position of last displayed item.
+     * Used for animation.
+     */
+    public int getLastPosition() {
+        return lastPosition;
+    }
+
+    /**
+     * Override the position of the last displayed item.
+     * Used for animation.
+     * @param lastPosition index of the item before the first item to be animated.
+     */
+    public void setLastPosition(int lastPosition) {
+        this.lastPosition = lastPosition;
     }
 }

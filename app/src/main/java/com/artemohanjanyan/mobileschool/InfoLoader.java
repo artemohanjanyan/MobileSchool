@@ -15,16 +15,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Loads description of artists asynchronously.
- * Since number of artists is relatively small,
- * loader returns result of query an a list for simplicity.
  */
-public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
+public class InfoLoader extends AsyncTaskLoader<Cursor> {
 
     public static final String REFRESH_EXTRA = "refresh";
     public static final String SEARCH_EXTRA = "search";
@@ -32,7 +28,8 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
     private static final String TAG = InfoLoader.class.getSimpleName();
     private static final String jsonURL = "http://cache-spb03.cdn.yandex.net/" +
             "download.cdn.yandex.net/mobilization-2016/artists.json";
-    private List<Artist> artists;
+    private SQLiteDatabase db;
+    private Cursor cursor;
     private volatile boolean shouldRefresh = false;
     private volatile String searchString = "";
 
@@ -53,10 +50,10 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
     /**
      * Loads information about artists.
      * May download data from the web, depending on request and cache availability.
-     * @return list of artists on success, empty list if IO error happens.
+     * @return cursor pointing to information, or null if some error happens. See {@link DbHelper}.
      */
     @Override
-    public List<Artist> loadInBackground() {
+    public Cursor loadInBackground() {
         Log.d(TAG, "load started");
 
         DbHelper dbHelper = new DbHelper(getContext());
@@ -64,63 +61,61 @@ public class InfoLoader extends AsyncTaskLoader<List<Artist>> {
         if (shouldRefresh) {
             try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
                 if (!download(db)) {
-                    return new ArrayList<>();
+                    return null;
                 }
             } catch (IOException e) {
-                return new ArrayList<>();
+                return null;
             }
         }
 
-        try (SQLiteDatabase db = dbHelper.getReadableDatabase();
-             Cursor cursor = db.query(DbHelper.TABLE_NAME, null,
-                     searchString.equals("") ? null : DbHelper.TABLE_NAME + " MATCH ?",
-                     searchString.equals("") ? null : new String[]{searchString},
-                     null, null, null)) {
-
-            // Reserve enough capacity.
-            List<Artist> artists = new ArrayList<>(cursor.getCount());
-
-            if (!cursor.moveToFirst()) {
-                return artists;
-            }
-
-            do {
-                Artist artist = new Artist();
-                artist.id = cursor.getInt(0);
-                artist.name = cursor.getString(1);
-                artist.genres = Arrays.asList(cursor.getString(2)
-                        .split(Pattern.quote(DbHelper.DELIMITER)));
-                artist.tracks = cursor.getInt(3);
-                artist.albums = cursor.getInt(4);
-                artist.link = cursor.getString(5);
-                artist.description = cursor.getString(6);
-                artist.smallCover = cursor.getString(7);
-                artist.bigCover = cursor.getString(8);
-                artists.add(artist);
-            } while (cursor.moveToNext() && !isLoadInBackgroundCanceled());
-
-            if (isLoadInBackgroundCanceled()) {
-                throw new OperationCanceledException();
-            }
-
-            return artists;
+        if (isLoadInBackgroundCanceled()) {
+            return null;
         }
-    }
 
-    @Override
-    public void deliverResult(List<Artist> data) {
-        artists = data;
-        super.deliverResult(data);
+        db = dbHelper.getReadableDatabase();
+        return db.query(DbHelper.TABLE_NAME, null,
+                searchString.equals("") ? null : DbHelper.TABLE_NAME + " MATCH ?",
+                searchString.equals("") ? null : new String[]{searchString},
+                null, null, null);
     }
 
     @Override
     protected void onStartLoading() {
-        if (artists == null) {
+        if (cursor == null) {
+            if (db != null) {
+                db.close();
+                db = null;
+            }
             forceLoad();
         } else {
-            deliverResult(artists);
+            deliverResult(cursor);
         }
         super.onStartLoading();
+    }
+
+    @Override
+    public void deliverResult(Cursor data) {
+        Log.d(TAG, "deliverResult");
+        cursor = data;
+        super.deliverResult(data);
+    }
+
+    @Override
+    public void onCanceled(Cursor data) {
+        Log.d(TAG, "onCanceled");
+        cursor = data;
+        super.onCanceled(data);
+    }
+
+    @Override
+    protected void onReset() {
+        if (cursor != null) {
+            cursor.close();
+        }
+        if (db != null) {
+            db.close();
+        }
+        super.onReset();
     }
 
     /**

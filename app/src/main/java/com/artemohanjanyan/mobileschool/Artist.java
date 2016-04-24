@@ -2,11 +2,14 @@ package com.artemohanjanyan.mobileschool;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Stores data about one artist.
@@ -21,9 +24,19 @@ public class Artist implements Parcelable {
     public String smallCover, bigCover;
 
     /**
-     * Creates artists, all fields are set to null.
+     * Create artist, reading info from current row of cursor.
+     * @param cursor source cursor, should be set to desirable position.
      */
-    public Artist() {
+    public Artist(Cursor cursor) {
+        id = cursor.getInt(0);
+        name = cursor.getString(1);
+        genres = Arrays.asList(cursor.getString(2).split(Pattern.quote(DbHelper.DELIMITER)));
+        tracks = cursor.getInt(3);
+        albums = cursor.getInt(4);
+        link = cursor.getString(5);
+        description = cursor.getString(6);
+        smallCover = cursor.getString(7);
+        bigCover = cursor.getString(8);
     }
 
     /**
