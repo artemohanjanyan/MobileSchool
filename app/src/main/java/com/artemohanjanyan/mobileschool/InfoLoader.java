@@ -17,6 +17,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.artemohanjanyan.mobileschool.DbHelper.*;
+
 /**
  * Loads description of artists asynchronously.
  */
@@ -73,8 +75,8 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
         }
 
         db = dbHelper.getReadableDatabase();
-        return db.query(DbHelper.TABLE_NAME, null,
-                searchString.equals("") ? null : DbHelper.TABLE_NAME + " MATCH ?",
+        return db.query(TABLE_NAME, null,
+                searchString.equals("") ? null : TABLE_NAME + " MATCH ?",
                 searchString.equals("") ? null : new String[]{searchString},
                 null, null, null);
     }
@@ -130,21 +132,21 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
             SQLiteStatement statement = db.compileStatement(String.format(
                     "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) " +
                             "VALUES (?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ? )",
-                    DbHelper.TABLE_NAME,
-                    DbHelper.ID,
-                    DbHelper.NAME,
-                    DbHelper.GENRES,
-                    DbHelper.TRACKS,
-                    DbHelper.ALBUMS,
-                    DbHelper.LINK,
-                    DbHelper.DESCRIPTION,
-                    DbHelper.SMALL_COVER,
-                    DbHelper.BIG_COVER));
+                    TABLE_NAME,
+                    ID,
+                    NAME,
+                    GENRES,
+                    TRACKS,
+                    ALBUMS,
+                    LINK,
+                    DESCRIPTION,
+                    SMALL_COVER,
+                    BIG_COVER));
 
             // Execute all queries as one transaction.
             // It is faster, and old data will be kept if some exception is thrown.
             db.beginTransaction();
-            db.delete(DbHelper.TABLE_NAME, null, null);
+            db.delete(TABLE_NAME, null, null);
 
             reader.beginArray();
             while (reader.hasNext() && !isLoadInBackgroundCanceled()) {
@@ -165,7 +167,7 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
                                 genres.add(reader.nextString());
                             }
                             reader.endArray();
-                            statement.bindString(3, TextUtils.join(DbHelper.DELIMITER, genres));
+                            statement.bindString(3, TextUtils.join(DELIMITER, genres));
                             break;
                         case "tracks":
                             statement.bindLong(4, reader.nextLong());

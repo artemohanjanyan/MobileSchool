@@ -22,6 +22,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     private Cursor cursor;
     private int lastPosition = -1;
+    private int lastFetched = -1;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public Artist artist;
@@ -83,14 +84,25 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         ApplicationContext.getInstance().getPicasso()
                 .load(holder.artist.smallCover)
                 .into(holder.cover);
+        lastFetched = Math.max(lastFetched, position);
+
+        // Fetch next 7 covers to minimize loading visible by user.
+        for (int i = lastFetched - position + 1; i <= 7 && position + i < getItemCount(); ++i) {
+            Log.d(TAG, "fetching " + (position + i));
+            cursor.moveToPosition(position + i);
+            ApplicationContext.getInstance().getPicasso()
+                    .load(Artist.getSmallCover(cursor)).fetch();
+            lastFetched = position + i;
+        }
     }
 
     @Override
     public void onViewRecycled(ViewHolder holder) {
         holder.cover.setImageBitmap(null);
         // Stop unnecessary image loading
-        ApplicationContext.getInstance().getPicasso()
-                .cancelRequest(holder.cover);
+        //ApplicationContext.getInstance().getPicasso()
+        //        .cancelRequest(holder.cover);
+        // No, let's let them cache.
     }
 
     @Override
@@ -135,6 +147,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         notifyItemRangeRemoved(0, getItemCount());
         cursor = null;
         lastPosition = -1;
+        lastFetched = -1;
     }
 
     /**

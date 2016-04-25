@@ -24,18 +24,18 @@ public class ApplicationContext extends Application {
 
     /**
      * Returns application-global {@link Picasso} instance. <br>
-     * LRU memory cache is set up to be ~34% of the available application RAM.
+     * LRU memory cache is set up to be ~50% of the available application RAM.
      */
     public Picasso getPicasso() {
         if (picasso == null) {
             ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
             int memoryClass = am.getMemoryClass();
-            // Target ~34% of the available heap.
+            // Target ~50% of the available heap.
             Cache cache = new LruCache(1024 * 1024 * memoryClass / 2);
             picasso = new Picasso.Builder(this).memoryCache(cache).build();
-//            if (BuildConfig.DEBUG) {
-//                picasso.setIndicatorsEnabled(true);
-//            }
+            if (BuildConfig.DEBUG) {
+                picasso.setIndicatorsEnabled(true);
+            }
         }
 
         return picasso;

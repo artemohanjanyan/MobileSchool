@@ -35,8 +35,35 @@ public class Artist implements Parcelable {
         albums = cursor.getInt(4);
         link = cursor.getString(5);
         description = cursor.getString(6);
-        smallCover = cursor.getString(7);
-        bigCover = cursor.getString(8);
+        smallCover = getSmallCover(cursor);
+        bigCover = getBigCover(cursor);
+    }
+
+    /**
+     * Returns genres as a comma-separated string.
+     */
+    public String getGenres() {
+        return TextUtils.join(", ", genres);
+    }
+
+    /**
+     * Returns a string, which describes how many albums and songs artist has published.<br>
+     * Forms of nouns correspond to numerals (e.g. 1 album, 2 albums).
+     * @param context context used to get access to {@link Resources}.
+     */
+    public String getPublished(Context context) {
+        Resources resources = context.getResources();
+        return context.getString(R.string.published,
+                resources.getQuantityString(R.plurals.albums, albums, albums),
+                resources.getQuantityString(R.plurals.tracks, tracks, tracks));
+    }
+
+    public static String getSmallCover(Cursor cursor) {
+        return cursor.getString(7);
+    }
+
+    public static String getBigCover(Cursor cursor) {
+        return cursor.getString(8);
     }
 
     /**
@@ -84,23 +111,4 @@ public class Artist implements Parcelable {
             return new Artist[size];
         }
     };
-
-    /**
-     * Returns genres as a comma-separated string.
-     */
-    public String getGenres() {
-        return TextUtils.join(", ", genres);
-    }
-
-    /**
-     * Returns a string, which describes how many albums and songs artist has published.<br>
-     * Forms of nouns correspond to numerals (e.g. 1 album, 2 albums).
-     * @param context context used to get access to {@link Resources}.
-     */
-    public String getPublished(Context context) {
-        Resources resources = context.getResources();
-        return context.getString(R.string.published,
-                resources.getQuantityString(R.plurals.albums, albums, albums),
-                resources.getQuantityString(R.plurals.tracks, tracks, tracks));
-    }
 }
