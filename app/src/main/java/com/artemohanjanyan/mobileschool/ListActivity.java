@@ -78,16 +78,16 @@ public class ListActivity extends AppCompatActivity
         }
 
         // Get data
+        swipeRefreshLayout.setRefreshing(true);
         SharedPreferences preferences = getSharedPreferences(TAG, 0);
+        Bundle bundle = new Bundle();
         if (preferences.getBoolean(FIRST_LAUNCH_FLAG, true)) {
-            // Invite to pull to download if app is run for the first time.
-            Toast.makeText(getApplicationContext(),
-                    getString(R.string.pull_to_download), Toast.LENGTH_LONG).show();
+            // Why ask to pull, if app can pull without any help.
+            bundle.putBoolean(InfoLoader.REFRESH_EXTRA, true);
             preferences.edit().putBoolean(FIRST_LAUNCH_FLAG, false).apply();
-        } else {
-            getLoaderManager().initLoader(0, null, this);
-            swipeRefreshLayout.setRefreshing(true);
         }
+
+        getLoaderManager().initLoader(0, bundle, ListActivity.this);
     }
 
     @Override

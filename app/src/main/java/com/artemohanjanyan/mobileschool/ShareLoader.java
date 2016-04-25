@@ -71,6 +71,7 @@ public class ShareLoader extends AsyncTaskLoader<String> {
     @Override
     protected void onReset() {
         // Delete cover
+        Log.d(TAG, "deleting cover");
         if (string != null) {
             new ShareAsyncDeleter().execute(string);
         }
