@@ -86,8 +86,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
                 .into(holder.cover);
         lastFetched = Math.max(lastFetched, position);
 
-        // Fetch next 7 covers to minimize loading visible by user.
-        for (int i = lastFetched - position + 1; i <= 7 && position + i < getItemCount(); ++i) {
+        // Fetch next 10 covers to minimize loading visible by user.
+        // Start from last not cached.
+        for (int i = lastFetched - position + 1; i <= 10 && position + i < getItemCount(); ++i) {
             Log.d(TAG, "fetching " + (position + i));
             cursor.moveToPosition(position + i);
             ApplicationContext.getInstance().getPicasso()

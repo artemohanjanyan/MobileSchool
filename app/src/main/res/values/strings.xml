@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Исполнители</string>
 
+    <string name="no_internet">Отсутствует интернет-подключение</string>
     <string name="no_results_toast">Исполнителей не найдено</string>
     <string name="pull_to_download">Потяните вниз чтобы загрузить список исполнителей</string>
 

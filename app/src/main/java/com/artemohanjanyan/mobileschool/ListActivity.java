@@ -8,6 +8,8 @@ import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -59,6 +61,15 @@ public class ListActivity extends AppCompatActivity
         adapter = new Adapter();
         recyclerView.setAdapter(adapter);
         recyclerView.setVisibility(View.VISIBLE);
+
+        // Warn if internet connection isn't available.
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
+        }
 
         // Get data
         SharedPreferences preferences = getSharedPreferences(TAG, 0);
@@ -121,7 +132,7 @@ public class ListActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         SearchView view = (SearchView) item.getActionView();
         if (item.getItemId() == R.id.list_search) {
-            // Focuses on the text input field so that virtual keyboard appears.
+            // Focus on the text input field so that virtual keyboard appears.
             view.setFocusable(true);
             view.setIconified(false);
             view.requestFocusFromTouch();

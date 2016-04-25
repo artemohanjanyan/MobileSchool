@@ -58,10 +58,16 @@ public class Artist implements Parcelable {
                 resources.getQuantityString(R.plurals.tracks, tracks, tracks));
     }
 
+    /**
+     * Returns link to small cover at current row of cursor,
+     */
     public static String getSmallCover(Cursor cursor) {
         return cursor.getString(7);
     }
 
+    /**
+     * Returns link to big cover at current row of cursor,
+     */
     public static String getBigCover(Cursor cursor) {
         return cursor.getString(8);
     }
