@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ListActivity extends AppCompatActivity
@@ -32,6 +33,7 @@ public class ListActivity extends AppCompatActivity
     private static final String SEARCH_QUERY = "search query";
 
     private SwipeRefreshLayout swipeRefreshLayout;
+    private TextView textView;
     private Adapter adapter;
     private SearchView searchView;
 
@@ -53,6 +55,7 @@ public class ListActivity extends AppCompatActivity
                 getLoaderManager().restartLoader(0, bundle, ListActivity.this);
             }
         });
+        textView = (TextView) findViewById(R.id.list_no_artists_text);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list_recycler_view);
         assert recyclerView != null;
@@ -179,8 +182,9 @@ public class ListActivity extends AppCompatActivity
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         swipeRefreshLayout.setRefreshing(false);
         if (data.getCount() == 0) {
-            Toast.makeText(getApplicationContext(),
-                        getString(R.string.no_results_toast), Toast.LENGTH_SHORT).show();
+            textView.setVisibility(View.VISIBLE);
+        } else {
+            textView.setVisibility(View.INVISIBLE);
         }
         adapter.setCursor(data);
     }

@@ -19,30 +19,21 @@ public class ShareAsyncDeleter extends AsyncTask<String, Void, Void> {
     @Override
     protected Void doInBackground(String... params) {
         String string = params[0];
-        String previousPath = getPathFromURI(
-                ApplicationContext.getInstance().getApplicationContext(),
-                Uri.parse(string));
+        String previousPath = getPathFromURI(Uri.parse(string));
         if (previousPath != null && !new File(previousPath).delete()) {
             Log.d(TAG, "file not deleted");
         }
         return null;
     }
 
-    private static String getPathFromURI(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] projection = {MediaStore.Images.Media.DATA};
-            cursor = context.getContentResolver().query(contentUri, projection, null, null, null);
+    private static String getPathFromURI(Uri uri) {
+        try (Cursor cursor = ApplicationContext.getInstance().getContentResolver()
+                    .query(uri, new String[]{MediaStore.Images.Media.DATA}, null, null, null)) {
             if (cursor == null) {
                 return null;
             }
-            int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             cursor.moveToFirst();
-            return cursor.getString(index);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            return cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
         }
     }
 }

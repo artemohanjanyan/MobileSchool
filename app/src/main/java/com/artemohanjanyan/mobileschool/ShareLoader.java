@@ -9,7 +9,11 @@ import android.util.Log;
 
 import java.io.IOException;
 
-
+/**
+ * Class for asynchronous downloading of cover for sharing.
+ * Saves it on the device, and launches another asynchronous deletion of previously saved file
+ * during {@link ShareLoader#onReset()}
+ */
 public class ShareLoader extends AsyncTaskLoader<String> {
 
     private static final String TAG = ShareLoader.class.getSimpleName();
@@ -19,6 +23,11 @@ public class ShareLoader extends AsyncTaskLoader<String> {
     private volatile Artist artist;
     private String string;
 
+    /**
+     * Creates new instance of ShareLoader.
+     * @param context required by {@link AsyncTaskLoader}
+     * @param args should contain {@link Artist} at key {@link ShareLoader#SHARE_ARTIST_EXTRA}.
+     */
     public ShareLoader(Context context, Bundle args) {
         super(context);
         artist = args.getParcelable(SHARE_ARTIST_EXTRA);
