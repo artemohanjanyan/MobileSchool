@@ -56,7 +56,7 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
      */
     @Override
     public Cursor loadInBackground() {
-        Log.d(TAG, "load started");
+        Log.d(TAG, "info load started");
 
         DbHelper dbHelper = new DbHelper(getContext());
 

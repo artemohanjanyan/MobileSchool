@@ -2,6 +2,7 @@ package com.artemohanjanyan.mobileschool;
 
 import android.app.ActivityManager;
 import android.app.Application;
+import android.content.ContentResolver;
 
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.LruCache;

@@ -21,6 +21,9 @@
     </plurals>
 
     <string name="description">Описание</string>
+    <string name="share">Поделиться</string>
+    <string name="wait_please">Загрузка обложки, подождите…</string>
+    <string name="share_text">Мне нравится %1$s, посмотри: %2$s</string>
     <string name="website">Сайт</string>
 
     <string name="blank_string"> </string>

@@ -60,8 +60,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // Launch DescriptionActivity
-                Log.d(TAG, "launching " + viewHolder.artist.name + " description");
-                Context context = viewHolder.cover.getContext();
+                Context context = viewHolder.view.getContext();
                 Intent intent = new Intent(context, DescriptionActivity.class);
                 intent.putExtra(DescriptionActivity.ARTIST_EXTRA, viewHolder.artist);
                 context.startActivity(intent);
@@ -95,15 +94,25 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
                     .load(Artist.getSmallCover(cursor)).fetch();
             lastFetched = position + i;
         }
+
+        // Fetch big cover
+        // UPD Slows everything down
+        // ApplicationContext.getInstance().getPicasso()
+        //        .load(Artist.getBigCover(cursor))
+        //        .tag(holder.artist.bigCover)
+        //        .fetch();
     }
 
     @Override
     public void onViewRecycled(ViewHolder holder) {
         holder.cover.setImageBitmap(null);
-        // Stop unnecessary image loading
+        // May stop unnecessary image loading, but let's let them cache.
         //ApplicationContext.getInstance().getPicasso()
         //        .cancelRequest(holder.cover);
-        // No, let's let them cache.
+        // Disable big cover fetching
+        // UPD Slows everything down
+        // ApplicationContext.getInstance().getPicasso()
+        //        .cancelTag(holder.artist.bigCover);
     }
 
     @Override
