@@ -47,6 +47,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
      * Creates adapter with empty list of artists.
      */
     public Adapter() {
+        Log.d(TAG, "adapter created");
         this.cursor = null;
     }
 
@@ -88,7 +89,6 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         // Fetch next 10 covers to minimize loading visible by user.
         // Start from last not cached.
         for (int i = lastFetched - position + 1; i <= 10 && position + i < getItemCount(); ++i) {
-            Log.d(TAG, "fetching " + (position + i));
             cursor.moveToPosition(position + i);
             ApplicationContext.getInstance().getPicasso()
                     .load(Artist.getSmallCover(cursor)).fetch();
@@ -109,6 +109,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         // May stop unnecessary image loading, but let's let them cache.
         //ApplicationContext.getInstance().getPicasso()
         //        .cancelRequest(holder.cover);
+
         // Disable big cover fetching
         // UPD Slows everything down
         // ApplicationContext.getInstance().getPicasso()

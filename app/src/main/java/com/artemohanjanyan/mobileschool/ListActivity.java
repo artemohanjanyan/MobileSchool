@@ -29,10 +29,13 @@ public class ListActivity extends AppCompatActivity
     private static final String TAG = ListActivity.class.getSimpleName();
     private static final String FIRST_LAUNCH_FLAG = "first launch flag";
     private static final String LAST_POSITION = "last position";
+    private static final String SEARCH_QUERY = "search query";
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private Adapter adapter;
     private SearchView searchView;
+
+    private String searchQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +91,8 @@ public class ListActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {
         // Avoid unnecessary animation.
         outState.putInt(LAST_POSITION, adapter.getLastPosition());
+        // Save search query
+        outState.putString(SEARCH_QUERY, searchQuery);
         super.onSaveInstanceState(outState);
     }
 
@@ -95,6 +100,7 @@ public class ListActivity extends AppCompatActivity
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         adapter.setLastPosition(savedInstanceState.getInt(LAST_POSITION));
+        searchQuery = savedInstanceState.getString(SEARCH_QUERY);
     }
 
     @Override
@@ -118,12 +124,19 @@ public class ListActivity extends AppCompatActivity
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
+                searchQuery = null;
                 adapter.dropCursor();
-                getLoaderManager().restartLoader(0, null, ListActivity.this);
                 searchView.clearFocus();
+                getLoaderManager().restartLoader(0, null, ListActivity.this);
                 return true;
             }
         });
+
+        if (searchQuery != null && !searchQuery.isEmpty()) {
+            item.expandActionView();
+            searchView.setQuery(searchQuery, true);
+            searchView.clearFocus();
+        }
 
         return true;
     }
@@ -143,12 +156,15 @@ public class ListActivity extends AppCompatActivity
     @Override
     protected void onNewIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
+            searchQuery = intent.getStringExtra(SearchManager.QUERY);
 
+            // UI
             swipeRefreshLayout.setRefreshing(true);
+            searchView.clearFocus();
 
+            // Start search
             Bundle bundle = new Bundle();
-            bundle.putString(InfoLoader.SEARCH_EXTRA, query);
+            bundle.putString(InfoLoader.SEARCH_EXTRA, searchQuery);
             getLoaderManager().restartLoader(0, bundle, ListActivity.this);
         }
     }

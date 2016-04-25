@@ -2,7 +2,6 @@ package com.artemohanjanyan.mobileschool;
 
 import android.app.ActivityManager;
 import android.app.Application;
-import android.content.ContentResolver;
 
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.LruCache;
@@ -34,9 +33,9 @@ public class ApplicationContext extends Application {
             // Target ~50% of the available heap.
             Cache cache = new LruCache(1024 * 1024 * memoryClass / 2);
             picasso = new Picasso.Builder(this).memoryCache(cache).build();
-            if (BuildConfig.DEBUG) {
-                picasso.setIndicatorsEnabled(true);
-            }
+//            if (BuildConfig.DEBUG) {
+//                picasso.setIndicatorsEnabled(true);
+//            }
         }
 
         return picasso;
