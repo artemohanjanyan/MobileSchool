@@ -130,8 +130,8 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
                     JsonReader reader = new JsonReader(new InputStreamReader(
                         new URL(jsonURL).openStream(), "UTF-8"))) {
             SQLiteStatement statement = db.compileStatement(String.format(
-                    "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) " +
-                            "VALUES (?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ? )",
+                    "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " +
+                            "VALUES (?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ? )",
                     TABLE_NAME,
                     ID,
                     NAME,
@@ -141,7 +141,9 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
                     LINK,
                     DESCRIPTION,
                     SMALL_COVER,
-                    BIG_COVER));
+                    BIG_COVER,
+                    NAME_LOWER,
+                    DESCRIPTION_LOWER));
 
             // Execute all queries as one transaction.
             // It is faster, and old data will be kept if some exception is thrown.
@@ -157,9 +159,12 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
                         case "id":
                             statement.bindLong(1, reader.nextLong());
                             break;
-                        case "name":
-                            statement.bindString(2, reader.nextString());
+                        case "name": {
+                            String string = reader.nextString();
+                            statement.bindString(2, string);
+                            statement.bindString(10, string.toLowerCase());
                             break;
+                        }
                         case "genres":
                             List<String> genres = new ArrayList<>();
                             reader.beginArray();
@@ -178,9 +183,12 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
                         case "link":
                             statement.bindString(6, reader.nextString());
                             break;
-                        case "description":
-                            statement.bindString(7, reader.nextString());
+                        case "description": {
+                            String string = reader.nextString();
+                            statement.bindString(7, string);
+                            statement.bindString(11, string.toLowerCase());
                             break;
+                        }
                         case "cover":
                             reader.beginObject();
                             for (int i = 0; i < 2; ++i) {

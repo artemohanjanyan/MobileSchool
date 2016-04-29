@@ -9,7 +9,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private static final String TAG = DbHelper.class.getSimpleName();
 
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "artists.db";
 
     public static final String TABLE_NAME = "artists";
@@ -22,7 +22,9 @@ public class DbHelper extends SQLiteOpenHelper {
             LINK = "LINK",
             DESCRIPTION = "DESCRIPTION",
             SMALL_COVER = "SMALL_COVER",
-            BIG_COVER = "BIG_COVER";
+            BIG_COVER = "BIG_COVER",
+            NAME_LOWER = "NAME_LOWER",
+            DESCRIPTION_LOWER = "DESCRIPTION_LOWER";
 
     /**
      * Genres in GENRES field in the database are separated by this string.
@@ -45,7 +47,9 @@ public class DbHelper extends SQLiteOpenHelper {
                 LINK + " TEXT," +
                 DESCRIPTION + " TEXT," +
                 SMALL_COVER + " TEXT," +
-                BIG_COVER + " TEXT)");
+                BIG_COVER + " TEXT," +
+                NAME_LOWER + " TEXT," +
+                DESCRIPTION_LOWER + " TEXT)");
     }
 
     @Override

@@ -167,7 +167,7 @@ public class ListActivity extends AppCompatActivity
 
             // Start search
             Bundle bundle = new Bundle();
-            bundle.putString(InfoLoader.SEARCH_EXTRA, searchQuery);
+            bundle.putString(InfoLoader.SEARCH_EXTRA, searchQuery.toLowerCase());
             getLoaderManager().restartLoader(0, bundle, ListActivity.this);
         }
     }
