@@ -52,7 +52,8 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
     /**
      * Loads information about artists.
      * May download data from the web, depending on request and cache availability.
-     * @return cursor pointing to information, or null if some error happens. See {@link DbHelper}.
+     * @return cursor pointing to information, or null if some error happens.
+     * @see DbHelper
      */
     @Override
     public Cursor loadInBackground() {
