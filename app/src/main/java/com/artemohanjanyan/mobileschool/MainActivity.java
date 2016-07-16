@@ -13,7 +13,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_list);
+        if (findViewById(R.id.activity_main_layout) != null) {
+            if (savedInstanceState != null) {
+                listFragment = (ListFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.activity_main_layout);
+                return;
+            }
+
+            listFragment = new ListFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.activity_main_layout, listFragment).commit();
+        }
     }
 
     @Override
