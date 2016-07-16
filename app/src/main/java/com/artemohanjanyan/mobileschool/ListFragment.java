@@ -1,33 +1,37 @@
 package com.artemohanjanyan.mobileschool;
 
-import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ListActivity extends AppCompatActivity
+public class ListFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String TAG = ListActivity.class.getSimpleName();
+    private static final String TAG = ListFragment.class.getSimpleName();
     private static final String FIRST_LAUNCH_FLAG = "first launch flag";
     private static final String LAST_POSITION = "last position";
     private static final String SEARCH_QUERY = "search query";
@@ -40,28 +44,30 @@ public class ListActivity extends AppCompatActivity
     private String searchQuery;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        FrameLayout frameLayout =
+                (FrameLayout) inflater.inflate(R.layout.fragment_list, container, false);
 
         // UI components
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.list_refresh_layout);
+        swipeRefreshLayout = (SwipeRefreshLayout) frameLayout.findViewById(R.id.list_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 adapter.dropCursor();
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(InfoLoader.REFRESH_EXTRA, true);
-                getLoaderManager().restartLoader(0, bundle, ListActivity.this);
+                getLoaderManager().restartLoader(0, bundle, ListFragment.this);
             }
         });
-        textView = (TextView) findViewById(R.id.list_no_artists_text);
+        textView = (TextView) frameLayout.findViewById(R.id.list_no_artists_text);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list_recycler_view);
+        RecyclerView recyclerView = (RecyclerView) frameLayout.findViewById(R.id.list_recycler_view);
         assert recyclerView != null;
         recyclerView.setHasFixedSize(true);
 
-        recyclerView.setLayoutManager(new GridLayoutManager(this,
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),
                 getResources().getConfiguration().orientation
                         == Configuration.ORIENTATION_PORTRAIT ? 1 : 2));
         adapter = new Adapter();
@@ -70,16 +76,16 @@ public class ListActivity extends AppCompatActivity
 
         // Warn if internet connection isn't available.
         ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
-            Toast.makeText(getApplicationContext(),
+            Toast.makeText(getActivity().getApplicationContext(),
                     getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
         }
 
         // Get data
         swipeRefreshLayout.setRefreshing(true);
-        SharedPreferences preferences = getSharedPreferences(TAG, 0);
+        SharedPreferences preferences = getActivity().getSharedPreferences(TAG, 0);
         Bundle bundle = new Bundle();
         if (preferences.getBoolean(FIRST_LAUNCH_FLAG, true)) {
             // Why ask to pull, if app can pull without any help.
@@ -87,11 +93,13 @@ public class ListActivity extends AppCompatActivity
             preferences.edit().putBoolean(FIRST_LAUNCH_FLAG, false).apply();
         }
 
-        getLoaderManager().initLoader(0, bundle, ListActivity.this);
+        getLoaderManager().initLoader(0, bundle, ListFragment.this);
+
+        return frameLayout;
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         // Avoid unnecessary animation.
         outState.putInt(LAST_POSITION, adapter.getLastPosition());
         // Save search query
@@ -100,22 +108,26 @@ public class ListActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        adapter.setLastPosition(savedInstanceState.getInt(LAST_POSITION));
-        searchQuery = savedInstanceState.getString(SEARCH_QUERY);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            adapter.setLastPosition(savedInstanceState.getInt(LAST_POSITION));
+            searchQuery = savedInstanceState.getString(SEARCH_QUERY);
+        }
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.list_menu, menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.list_menu, menu);
 
         // Setup SearchView
         MenuItem item = menu.findItem(R.id.list_search);
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchManager searchManager =
+                (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) item.getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getActivity().getComponentName()));
         searchView.setIconifiedByDefault(false);
 
         MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
@@ -130,7 +142,7 @@ public class ListActivity extends AppCompatActivity
                 searchQuery = null;
                 adapter.dropCursor();
                 searchView.clearFocus();
-                getLoaderManager().restartLoader(0, null, ListActivity.this);
+                getLoaderManager().restartLoader(0, null, ListFragment.this);
                 return true;
             }
         });
@@ -140,8 +152,6 @@ public class ListActivity extends AppCompatActivity
             searchView.setQuery(searchQuery, true);
             searchView.clearFocus();
         }
-
-        return true;
     }
 
     @Override
@@ -156,8 +166,7 @@ public class ListActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
+    void onNewIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             searchQuery = intent.getStringExtra(SearchManager.QUERY);
 
@@ -168,18 +177,18 @@ public class ListActivity extends AppCompatActivity
             // Start search
             Bundle bundle = new Bundle();
             bundle.putString(InfoLoader.SEARCH_EXTRA, searchQuery.toLowerCase());
-            getLoaderManager().restartLoader(0, bundle, ListActivity.this);
+            getLoaderManager().restartLoader(0, bundle, ListFragment.this);
         }
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "loader created");
-        return new InfoLoader(this, args);
+        return new InfoLoader(this.getActivity(), args);
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
         swipeRefreshLayout.setRefreshing(false);
         if (data.getCount() == 0) {
             textView.setVisibility(View.VISIBLE);
@@ -190,7 +199,7 @@ public class ListActivity extends AppCompatActivity
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
         Log.d(TAG, "loader reset");
         // Should remove reference to Loader's data.
         adapter.dropCursor();
