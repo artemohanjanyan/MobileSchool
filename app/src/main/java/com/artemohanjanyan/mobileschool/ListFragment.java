@@ -31,6 +31,11 @@ import android.widget.Toast;
 public class ListFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    interface MenuListener {
+        void onAboutSelected();
+        void onFeedbackSelected();
+    }
+
     private static final String TAG = ListFragment.class.getSimpleName();
     private static final String FIRST_LAUNCH_FLAG = "first launch flag";
     private static final String LAST_POSITION = "last position";
@@ -160,11 +165,19 @@ public class ListFragment extends Fragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         SearchView view = (SearchView) item.getActionView();
-        if (item.getItemId() == R.id.list_search) {
-            // Focus on the text input field so that virtual keyboard appears.
-            view.setFocusable(true);
-            view.setIconified(false);
-            view.requestFocusFromTouch();
+        switch (item.getItemId()) {
+            case R.id.list_search:
+                // Focus on the text input field so that virtual keyboard appears.
+                view.setFocusable(true);
+                view.setIconified(false);
+                view.requestFocusFromTouch();
+                break;
+            case R.id.list_about:
+                ((MenuListener) getActivity()).onAboutSelected();
+                break;
+            case R.id.list_feedback:
+                ((MenuListener) getActivity()).onFeedbackSelected();
+                break;
         }
         return true;
     }
