@@ -1,6 +1,7 @@
 package com.artemohanjanyan.mobileschool;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity
         implements Adapter.OnArtistSelectListener, ListFragment.MenuListener {
+
+    private HeadsetDetector receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +23,21 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.activity_main_layout, fragment).commit();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        receiver = new HeadsetDetector();
+        registerReceiver(receiver, receiverFilter);
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
+        receiver = null;
     }
 
     // Workaround
