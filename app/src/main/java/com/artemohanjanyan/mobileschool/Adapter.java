@@ -2,8 +2,6 @@ package com.artemohanjanyan.mobileschool;
 
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,24 +14,28 @@ import android.widget.TextView;
 /**
  * Adapter for displaying artists' preview.
  */
-public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
-    public static final String TAG = Adapter.class.getSimpleName();
+    interface OnArtistSelectListener {
+        void onArtistSelected(Artist artist);
+    }
+
+    private static final String TAG = Adapter.class.getSimpleName();
 
     private Cursor cursor;
     private int lastPosition = -1;
     private int lastFetched = -1;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public Artist artist;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        Artist artist;
 
-        public View view;
-        public ImageView cover;
-        public TextView name;
-        public TextView genres;
-        public TextView published;
+        View view;
+        ImageView cover;
+        TextView name;
+        TextView genres;
+        TextView published;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             this.view = view;
             cover = (ImageView) view.findViewById(R.id.item_cover);
@@ -46,7 +48,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     /**
      * Creates adapter with empty list of artists.
      */
-    public Adapter() {
+    Adapter() {
         Log.d(TAG, "adapter created");
         this.cursor = null;
     }
@@ -60,11 +62,10 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Launch DescriptionActivity
-                Context context = viewHolder.view.getContext();
-                Intent intent = new Intent(context, DescriptionActivity.class);
-                intent.putExtra(DescriptionActivity.ARTIST_EXTRA, viewHolder.artist);
-                context.startActivity(intent);
+                // Launch DescriptionFragment
+                OnArtistSelectListener activity =
+                        (OnArtistSelectListener) viewHolder.view.getContext();
+                activity.onArtistSelected(viewHolder.artist);
             }
         });
         return viewHolder;
@@ -145,7 +146,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
      *                Adapter keeps the reference to this cursor
      *                until {@link Adapter#dropCursor()} is called.
      */
-    public void setCursor(Cursor cursor) {
+    void setCursor(Cursor cursor) {
         dropCursor();
         this.cursor = cursor;
         notifyItemRangeInserted(0, this.cursor.getCount());
@@ -154,7 +155,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     /**
      * Removes the reference to the cursor.
      */
-    public void dropCursor() {
+    void dropCursor() {
         notifyItemRangeRemoved(0, getItemCount());
         cursor = null;
         lastPosition = -1;
@@ -165,7 +166,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
      * Returns position of last displayed item.
      * Used for animation.
      */
-    public int getLastPosition() {
+    int getLastPosition() {
         return lastPosition;
     }
 
@@ -174,7 +175,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
      * Used for animation.
      * @param lastPosition index of the item before the first item to be animated.
      */
-    public void setLastPosition(int lastPosition) {
+    void setLastPosition(int lastPosition) {
         this.lastPosition = lastPosition;
     }
 }

@@ -1,24 +1,28 @@
 package com.artemohanjanyan.mobileschool;
 
-import android.app.LoaderManager;
 import android.content.Intent;
-import android.content.Loader;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DescriptionActivity extends AppCompatActivity
+public class DescriptionFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<String> {
 
-    private static final String TAG = DescriptionActivity.class.getSimpleName();
+    private static final String TAG = DescriptionFragment.class.getSimpleName();
 
-    public static final String ARTIST_EXTRA = "artist";
+    static final String ARTIST_EXTRA = "artist";
 
     @SuppressWarnings("FieldCanBeLocal")
     private ImageView cover;
@@ -28,34 +32,36 @@ public class DescriptionActivity extends AppCompatActivity
     private Artist artist;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_description);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        View frameLayout = inflater.inflate(R.layout.fragment_description, container, false);
 
         // UI components
-        cover = (ImageView) findViewById(R.id.description_cover);
-        genres = (TextView) findViewById(R.id.description_genres);
-        published = (TextView) findViewById(R.id.description_published);
-        description = (TextView) findViewById(R.id.description_description);
+        cover = (ImageView) frameLayout.findViewById(R.id.description_cover);
+        genres = (TextView) frameLayout.findViewById(R.id.description_genres);
+        published = (TextView) frameLayout.findViewById(R.id.description_published);
+        description = (TextView) frameLayout.findViewById(R.id.description_description);
 
         // Artist info
-        Intent intent = getIntent();
-        artist = intent.getParcelableExtra(ARTIST_EXTRA);
+        artist = getArguments().getParcelable(ARTIST_EXTRA);
 
-        setTitle(artist.name);
+        getActivity().setTitle(artist.name);
         genres.setText(artist.getGenres());
-        published.setText(artist.getPublished(this));
+        published.setText(artist.getPublished(getActivity()));
         description.setText(artist.description);
 
         ApplicationContext.getInstance().getPicasso()
                 .load(artist.bigCover)
                 .into(cover);
+
+        return frameLayout;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.description_menu, menu);
-        return true;
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.description_menu, menu);
     }
 
     @Override
@@ -75,7 +81,7 @@ public class DescriptionActivity extends AppCompatActivity
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(ShareLoader.SHARE_ARTIST_EXTRA, artist);
 
-                Toast.makeText(getApplicationContext(),
+                Toast.makeText(getActivity().getApplicationContext(),
                         getString(R.string.wait_please), Toast.LENGTH_SHORT).show();
                 getLoaderManager().initLoader(0, bundle, this);
                 return true;
@@ -84,14 +90,13 @@ public class DescriptionActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
-    public Loader<String> onCreateLoader(int id, Bundle args) {
-        return new ShareLoader(this, args);
+    public android.support.v4.content.Loader<String> onCreateLoader(int id, Bundle args) {
+        return new ShareLoader(getActivity(), args);
     }
 
     @Override
-    public void onLoadFinished(Loader<String> loader, String data) {
+    public void onLoadFinished(android.support.v4.content.Loader<String> loader, String data) {
         Log.d(TAG, "onLoadFinished");
 
         Intent intent = new Intent();
@@ -111,7 +116,7 @@ public class DescriptionActivity extends AppCompatActivity
     }
 
     @Override
-    public void onLoaderReset(Loader<String> loader) {
+    public void onLoaderReset(android.support.v4.content.Loader<String> loader) {
         // No data is kept.
     }
 }

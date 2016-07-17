@@ -1,10 +1,10 @@
 package com.artemohanjanyan.mobileschool;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
 import java.io.IOException;

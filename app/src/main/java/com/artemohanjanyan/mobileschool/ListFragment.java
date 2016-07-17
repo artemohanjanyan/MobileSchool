@@ -47,6 +47,7 @@ public class ListFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
+        setRetainInstance(true);
         FrameLayout frameLayout =
                 (FrameLayout) inflater.inflate(R.layout.fragment_list, container, false);
 
@@ -73,6 +74,8 @@ public class ListFragment extends Fragment
         adapter = new Adapter();
         recyclerView.setAdapter(adapter);
         recyclerView.setVisibility(View.VISIBLE);
+
+        getActivity().setTitle(getString(R.string.app_name));
 
         // Warn if internet connection isn't available.
         ConnectivityManager connectivityManager
