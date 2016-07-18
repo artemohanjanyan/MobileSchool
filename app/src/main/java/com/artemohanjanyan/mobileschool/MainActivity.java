@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.activity_main_layout, fragment).commit();
         }
+
+        PreferenceManager.setDefaultValues(this, R.xml.fragment_preferences, false);
     }
 
     @Override
@@ -78,5 +81,14 @@ public class MainActivity extends AppCompatActivity
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"artemohanjanyan@gmail.com"});
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback_subject));
         startActivity(Intent.createChooser(intent, getString(R.string.feedback)));
+    }
+
+    @Override
+    public void onSettingsSelected() {
+        SettingsFragment settingsFragment = new SettingsFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.activity_main_layout, settingsFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

@@ -34,6 +34,7 @@ public class ListFragment extends Fragment
     interface MenuListener {
         void onAboutSelected();
         void onFeedbackSelected();
+        void onSettingsSelected();
     }
 
     private static final String TAG = ListFragment.class.getSimpleName();
@@ -165,6 +166,7 @@ public class ListFragment extends Fragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         SearchView view = (SearchView) item.getActionView();
+        MenuListener listener = (MenuListener) getActivity();
         switch (item.getItemId()) {
             case R.id.list_search:
                 // Focus on the text input field so that virtual keyboard appears.
@@ -173,10 +175,13 @@ public class ListFragment extends Fragment
                 view.requestFocusFromTouch();
                 break;
             case R.id.list_about:
-                ((MenuListener) getActivity()).onAboutSelected();
+                listener.onAboutSelected();
                 break;
             case R.id.list_feedback:
-                ((MenuListener) getActivity()).onFeedbackSelected();
+                listener.onFeedbackSelected();
+                break;
+            case R.id.list_settings:
+                listener.onSettingsSelected();
                 break;
         }
         return true;
