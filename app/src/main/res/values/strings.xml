@@ -15,8 +15,12 @@
     <string name="feedback_subject">Отзыв о приложении</string>
 
     <string name="settings">Настройки</string>
-    <string name="open_music">Яндекс.Музыка</string>
     <string name="plug_notifications">Уведомления при подключении гарнитуры</string>
+    <string name="show_music">Предлагать открывать Яндекс.Музыку</string>
+    <string name="show_radio">Предлагать открывать Яндекс.Радио</string>
+    <string name="headphones_plugged_in">Подключена гарнитура</string>
+    <string name="open_music">Открыть Яндекс.Музыку</string>
+    <string name="open_radio">Открыть Яндекс.Радио</string>
 
     <string name="published">%1$s, %2$s</string>
     <plurals name="albums">

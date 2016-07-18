@@ -8,4 +8,6 @@
 
     <dimen name="description_small">8dp</dimen>
     <dimen name="description_large">16dp</dimen>
+
+    <dimen name="vertical_picture_height">300dp</dimen>
 </resources>

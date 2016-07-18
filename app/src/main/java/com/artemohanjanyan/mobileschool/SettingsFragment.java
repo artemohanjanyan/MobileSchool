@@ -8,5 +8,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
         addPreferencesFromResource(R.xml.fragment_preferences);
+        getActivity().setTitle(getString(R.string.settings));
     }
 }
