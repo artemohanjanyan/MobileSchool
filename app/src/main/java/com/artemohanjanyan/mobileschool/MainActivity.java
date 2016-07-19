@@ -12,7 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity
         implements Adapter.OnArtistSelectListener, ListFragment.MenuListener {
 
-    private HeadsetDetector receiver;
+    private HeadsetReceiver receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-        receiver = new HeadsetDetector();
+        receiver = new HeadsetReceiver();
         registerReceiver(receiver, receiverFilter);
         super.onResume();
     }

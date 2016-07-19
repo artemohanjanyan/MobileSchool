@@ -21,6 +21,8 @@
     <string name="headphones_plugged_in">Подключена гарнитура</string>
     <string name="open_music">Открыть Яндекс.Музыку</string>
     <string name="open_radio">Открыть Яндекс.Радио</string>
+    <string name="download_music">Загрузить Яндекс.Музыку</string>
+    <string name="download_radio">Загрузить Яндекс.Радио</string>
 
     <string name="published">%1$s, %2$s</string>
     <plurals name="albums">
