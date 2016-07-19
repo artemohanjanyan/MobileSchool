@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -12,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
 public class HeadsetReceiver extends BroadcastReceiver {
     private static final int MUSIC_NOTIFICATION_ID = 1;
@@ -29,9 +31,6 @@ public class HeadsetReceiver extends BroadcastReceiver {
             showNotification(context, RADIO_PACKAGE, R.string.preference_radio,
                     R.string.open_radio, R.string.download_radio, RADIO_NOTIFICATION_ID);
         } else if (state == 0) {
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-            notificationManager.cancel(MUSIC_NOTIFICATION_ID);
-            notificationManager.cancel(RADIO_NOTIFICATION_ID);
             hideNotifications(context);
         }
     }
@@ -56,7 +55,12 @@ public class HeadsetReceiver extends BroadcastReceiver {
             try {
                 Drawable icon = context.getPackageManager().getApplicationIcon(appPackage);
                 builder.setLargeIcon(((BitmapDrawable) icon).getBitmap());
-            } catch (Exception ignored) {
+            } catch (PackageManager.NameNotFoundException e) {
+                // Should not happen.
+                // If launchIntent != null then app is installed.
+                // And both Yandex.Music and Yandex.Radio have icons.
+                // But nevertheless:
+                Log.e(HeadsetReceiver.class.getSimpleName(), "error while getting app icon", e);
             }
         } else {
             launchIntent = new Intent(Intent.ACTION_VIEW,

@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (findViewById(R.id.activity_main_layout) != null && savedInstanceState == null) {
+        if (savedInstanceState == null) {
             Fragment fragment = new ListFragment();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.activity_main_layout, fragment).commit();

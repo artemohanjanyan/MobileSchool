@@ -7,6 +7,8 @@ import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.IOException;
 
 /**
@@ -37,9 +39,8 @@ public class ShareLoader extends AsyncTaskLoader<String> {
     public String loadInBackground() {
         Log.d(TAG, "cover load started");
         try {
-            Bitmap bitmap = ApplicationContext.getInstance().getPicasso().load(artist.bigCover).get();
-            return MediaStore.Images.Media.insertImage(
-                    ApplicationContext.getInstance().getContentResolver(),
+            Bitmap bitmap = Picasso.with(getContext()).load(artist.bigCover).get();
+            return MediaStore.Images.Media.insertImage(getContext().getContentResolver(),
                     bitmap, artist.name, null);
         } catch (IOException ignored) {
             // Sad :(
@@ -73,7 +74,7 @@ public class ShareLoader extends AsyncTaskLoader<String> {
         // Delete cover
         Log.d(TAG, "deleting cover");
         if (string != null) {
-            new ShareAsyncDeleter().execute(string);
+            new ShareAsyncDeleter(getContext()).execute(string);
         }
         super.onReset();
     }

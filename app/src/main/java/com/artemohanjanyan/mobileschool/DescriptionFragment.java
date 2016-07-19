@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,6 +17,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 public class DescriptionFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<String> {
@@ -32,9 +35,14 @@ public class DescriptionFragment extends Fragment
     private Artist artist;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
         View frameLayout = inflater.inflate(R.layout.fragment_description, container, false);
 
         // UI components
@@ -48,10 +56,10 @@ public class DescriptionFragment extends Fragment
 
         getActivity().setTitle(artist.name);
         genres.setText(artist.getGenres());
-        published.setText(artist.getPublished(getActivity()));
+        published.setText(artist.getPublished(getContext()));
         description.setText(artist.description);
 
-        ApplicationContext.getInstance().getPicasso()
+        Picasso.with(getContext())
                 .load(artist.bigCover)
                 .into(cover);
 
@@ -81,7 +89,7 @@ public class DescriptionFragment extends Fragment
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(ShareLoader.SHARE_ARTIST_EXTRA, artist);
 
-                Toast.makeText(getActivity().getApplicationContext(),
+                Toast.makeText(getContext().getApplicationContext(),
                         getString(R.string.wait_please), Toast.LENGTH_SHORT).show();
                 getLoaderManager().initLoader(0, bundle, this);
                 return true;
@@ -91,8 +99,8 @@ public class DescriptionFragment extends Fragment
     }
 
     @Override
-    public android.support.v4.content.Loader<String> onCreateLoader(int id, Bundle args) {
-        return new ShareLoader(getActivity(), args);
+    public Loader<String> onCreateLoader(int id, Bundle args) {
+        return new ShareLoader(getContext(), args);
     }
 
     @Override

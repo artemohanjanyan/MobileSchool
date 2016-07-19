@@ -2,6 +2,7 @@ package com.artemohanjanyan.mobileschool;
 
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
+import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -10,6 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import butterknife.BindView;
 
 /**
  * Adapter for displaying artists' preview.
@@ -26,18 +31,26 @@ class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     private int lastPosition = -1;
     private int lastFetched = -1;
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        OnArtistSelectListener listener;
+        Context context;
+
         Artist artist;
 
         View view;
-        ImageView cover;
-        TextView name;
-        TextView genres;
-        TextView published;
+        @BindView(R.id.item_cover) ImageView cover;
+        @BindView(R.id.item_name) TextView name;
+        @BindView(R.id.item_genres) TextView genres;
+        @BindView(R.id.item_published) TextView published;
 
         ViewHolder(View view) {
             super(view);
             this.view = view;
+            context = view.getContext();
+            listener = (OnArtistSelectListener) view.getContext();
+
+//            ButterKnife.setDebug(true);
+//            ButterKnife.bind(this, view); вот с этим и без следующих строчек не пашет
             cover = (ImageView) view.findViewById(R.id.item_cover);
             name = (TextView) view.findViewById(R.id.item_name);
             genres = (TextView) view.findViewById(R.id.item_genres);
@@ -63,9 +76,7 @@ class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // Launch DescriptionFragment
-                OnArtistSelectListener activity =
-                        (OnArtistSelectListener) viewHolder.view.getContext();
-                activity.onArtistSelected(viewHolder.artist);
+                viewHolder.listener.onArtistSelected(viewHolder.artist);
             }
         });
         return viewHolder;
@@ -82,7 +93,8 @@ class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         holder.genres.setText(artist.getGenres());
         holder.published.setText(artist.getPublished(holder.cover.getContext()));
 
-        ApplicationContext.getInstance().getPicasso()
+
+        Picasso.with(holder.context)
                 .load(holder.artist.smallCover)
                 .into(holder.cover);
         lastFetched = Math.max(lastFetched, position);
@@ -91,7 +103,7 @@ class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         // Start from last not cached.
         for (int i = lastFetched - position + 1; i <= 10 && position + i < getItemCount(); ++i) {
             cursor.moveToPosition(position + i);
-            ApplicationContext.getInstance().getPicasso()
+            Picasso.with(holder.context)
                     .load(Artist.getSmallCover(cursor)).fetch();
             lastFetched = position + i;
         }
@@ -149,14 +161,14 @@ class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     void setCursor(Cursor cursor) {
         dropCursor();
         this.cursor = cursor;
-        notifyItemRangeInserted(0, this.cursor.getCount());
+        notifyDataSetChanged();
     }
 
     /**
      * Removes the reference to the cursor.
      */
     void dropCursor() {
-        notifyItemRangeRemoved(0, getItemCount());
+        notifyDataSetChanged();
         cursor = null;
         lastPosition = -1;
         lastFetched = -1;

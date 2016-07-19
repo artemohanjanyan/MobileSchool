@@ -50,10 +50,15 @@ public class ListFragment extends Fragment
     private String searchQuery;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setRetainInstance(true);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         FrameLayout frameLayout =
                 (FrameLayout) inflater.inflate(R.layout.fragment_list, container, false);
 
@@ -74,7 +79,7 @@ public class ListFragment extends Fragment
         assert recyclerView != null;
         recyclerView.setHasFixedSize(true);
 
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),
                 getResources().getConfiguration().orientation
                         == Configuration.ORIENTATION_PORTRAIT ? 1 : 2));
         adapter = new Adapter();
@@ -85,16 +90,16 @@ public class ListFragment extends Fragment
 
         // Warn if internet connection isn't available.
         ConnectivityManager connectivityManager
-                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
-            Toast.makeText(getActivity().getApplicationContext(),
+            Toast.makeText(getContext().getApplicationContext(),
                     getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
         }
 
         // Get data
         swipeRefreshLayout.setRefreshing(true);
-        SharedPreferences preferences = getActivity().getSharedPreferences(TAG, 0);
+        SharedPreferences preferences = getContext().getSharedPreferences(TAG, 0);
         Bundle bundle = new Bundle();
         if (preferences.getBoolean(FIRST_LAUNCH_FLAG, true)) {
             // Why ask to pull, if app can pull without any help.
@@ -133,7 +138,7 @@ public class ListFragment extends Fragment
         MenuItem item = menu.findItem(R.id.list_search);
 
         SearchManager searchManager =
-                (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+                (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) item.getActionView();
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getActivity().getComponentName()));
@@ -205,7 +210,7 @@ public class ListFragment extends Fragment
     @Override
     public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "loader created");
-        return new InfoLoader(this.getActivity(), args);
+        return new InfoLoader(getContext(), args);
     }
 
     @Override
