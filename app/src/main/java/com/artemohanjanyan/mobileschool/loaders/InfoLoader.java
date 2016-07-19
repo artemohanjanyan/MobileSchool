@@ -1,4 +1,4 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.loaders;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -10,6 +10,8 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.text.TextUtils;
 import android.util.JsonReader;
 import android.util.Log;
+
+import com.artemohanjanyan.mobileschool.DbHelper;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

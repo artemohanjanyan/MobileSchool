@@ -1,4 +1,4 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.loaders;
 
 import android.content.Context;
 import android.database.Cursor;

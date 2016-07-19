@@ -1,4 +1,4 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.ui;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -14,6 +14,8 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+
+import com.artemohanjanyan.mobileschool.R;
 
 public class HeadsetReceiver extends BroadcastReceiver {
     private static final int MUSIC_NOTIFICATION_ID = 1;

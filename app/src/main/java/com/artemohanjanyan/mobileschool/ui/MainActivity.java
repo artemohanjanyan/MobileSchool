@@ -1,4 +1,4 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.ui;
 
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -8,6 +8,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+
+import com.artemohanjanyan.mobileschool.Artist;
+import com.artemohanjanyan.mobileschool.R;
 
 public class MainActivity extends AppCompatActivity
         implements Adapter.OnArtistSelectListener, ListFragment.MenuListener {

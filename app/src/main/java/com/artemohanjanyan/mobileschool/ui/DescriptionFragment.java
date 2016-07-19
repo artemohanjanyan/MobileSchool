@@ -1,4 +1,4 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.ui;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -18,7 +18,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.artemohanjanyan.mobileschool.Artist;
+import com.artemohanjanyan.mobileschool.R;
+import com.artemohanjanyan.mobileschool.loaders.ShareLoader;
 import com.squareup.picasso.Picasso;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class DescriptionFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<String> {
@@ -27,10 +33,10 @@ public class DescriptionFragment extends Fragment
 
     static final String ARTIST_EXTRA = "artist";
 
-    @SuppressWarnings("FieldCanBeLocal")
-    private ImageView cover;
-    @SuppressWarnings("FieldCanBeLocal")
-    private TextView genres, published, description;
+    @BindView(R.id.description_cover)       ImageView cover;
+    @BindView(R.id.description_genres)      TextView genres;
+    @BindView(R.id.description_published)   TextView published;
+    @BindView(R.id.description_description) TextView description;
 
     private Artist artist;
 
@@ -46,10 +52,11 @@ public class DescriptionFragment extends Fragment
         View frameLayout = inflater.inflate(R.layout.fragment_description, container, false);
 
         // UI components
-        cover = (ImageView) frameLayout.findViewById(R.id.description_cover);
-        genres = (TextView) frameLayout.findViewById(R.id.description_genres);
-        published = (TextView) frameLayout.findViewById(R.id.description_published);
-        description = (TextView) frameLayout.findViewById(R.id.description_description);
+        ButterKnife.bind(this, frameLayout);
+//        cover = (ImageView) frameLayout.findViewById(R.id.description_cover);
+//        genres = (TextView) frameLayout.findViewById(R.id.description_genres);
+//        published = (TextView) frameLayout.findViewById(R.id.description_published);
+//        description = (TextView) frameLayout.findViewById(R.id.description_description);
 
         // Artist info
         artist = getArguments().getParcelable(ARTIST_EXTRA);

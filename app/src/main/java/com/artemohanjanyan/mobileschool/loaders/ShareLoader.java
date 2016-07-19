@@ -1,4 +1,4 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.loaders;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,6 +7,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
+import com.artemohanjanyan.mobileschool.Artist;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;

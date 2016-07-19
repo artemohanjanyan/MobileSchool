@@ -1,4 +1,4 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.ui;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -28,6 +28,12 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.artemohanjanyan.mobileschool.R;
+import com.artemohanjanyan.mobileschool.loaders.InfoLoader;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class ListFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -42,10 +48,11 @@ public class ListFragment extends Fragment
     private static final String LAST_POSITION = "last position";
     private static final String SEARCH_QUERY = "search query";
 
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private TextView textView;
-    private Adapter adapter;
+    @BindView(R.id.list_refresh_layout)  SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.list_no_artists_text) TextView textView;
+    @BindView(R.id.list_recycler_view)   RecyclerView recyclerView;
     private SearchView searchView;
+    private Adapter adapter;
 
     private String searchQuery;
 
@@ -63,7 +70,8 @@ public class ListFragment extends Fragment
                 (FrameLayout) inflater.inflate(R.layout.fragment_list, container, false);
 
         // UI components
-        swipeRefreshLayout = (SwipeRefreshLayout) frameLayout.findViewById(R.id.list_refresh_layout);
+        ButterKnife.bind(this, frameLayout);
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -73,9 +81,7 @@ public class ListFragment extends Fragment
                 getLoaderManager().restartLoader(0, bundle, ListFragment.this);
             }
         });
-        textView = (TextView) frameLayout.findViewById(R.id.list_no_artists_text);
 
-        RecyclerView recyclerView = (RecyclerView) frameLayout.findViewById(R.id.list_recycler_view);
         assert recyclerView != null;
         recyclerView.setHasFixedSize(true);
 

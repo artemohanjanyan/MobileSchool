@@ -1,4 +1,4 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.ui;
 
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
@@ -12,9 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.artemohanjanyan.mobileschool.Artist;
+import com.artemohanjanyan.mobileschool.R;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Adapter for displaying artists' preview.
@@ -49,12 +52,11 @@ class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             context = view.getContext();
             listener = (OnArtistSelectListener) view.getContext();
 
-//            ButterKnife.setDebug(true);
-//            ButterKnife.bind(this, view); вот с этим и без следующих строчек не пашет
-            cover = (ImageView) view.findViewById(R.id.item_cover);
-            name = (TextView) view.findViewById(R.id.item_name);
-            genres = (TextView) view.findViewById(R.id.item_genres);
-            published = (TextView) view.findViewById(R.id.item_published);
+            ButterKnife.bind(this, view);
+//            cover = (ImageView) view.findViewById(R.id.item_cover);
+//            name = (TextView) view.findViewById(R.id.item_name);
+//            genres = (TextView) view.findViewById(R.id.item_genres);
+//            published = (TextView) view.findViewById(R.id.item_published);
         }
     }
 
