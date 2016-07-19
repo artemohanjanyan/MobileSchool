@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
+        receiver.hideNotifications(this);
         receiver = null;
     }
 

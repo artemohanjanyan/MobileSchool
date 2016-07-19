@@ -32,6 +32,7 @@ public class HeadsetReceiver extends BroadcastReceiver {
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
             notificationManager.cancel(MUSIC_NOTIFICATION_ID);
             notificationManager.cancel(RADIO_NOTIFICATION_ID);
+            hideNotifications(context);
         }
     }
 
@@ -69,5 +70,11 @@ public class HeadsetReceiver extends BroadcastReceiver {
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(notificationId, builder.build());
+    }
+
+    public void hideNotifications(Context context) {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.cancel(MUSIC_NOTIFICATION_ID);
+        notificationManager.cancel(RADIO_NOTIFICATION_ID);
     }
 }
