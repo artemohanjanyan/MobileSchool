@@ -221,13 +221,16 @@ public class ListFragment extends Fragment
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
+        Log.d(ListFragment.class.getSimpleName(), "onLoadFinished");
         swipeRefreshLayout.setRefreshing(false);
-        if (data.getCount() == 0) {
+        if (data == null || data.getCount() == 0) {
             textView.setVisibility(View.VISIBLE);
         } else {
             textView.setVisibility(View.INVISIBLE);
         }
-        adapter.setCursor(data);
+        if (data != null) {
+            adapter.setCursor(data);
+        }
     }
 
     @Override
