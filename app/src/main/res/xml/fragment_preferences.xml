@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/settings_notifications">
+        <SwitchPreference
+            android:key="@string/preference_music"
+            android:defaultValue="true"
+            android:title="@string/settings_show_music" />
+        <SwitchPreference
+            android:key="@string/preference_radio"
+            android:defaultValue="true"
+            android:title="@string/settings_show_radio" />
+    </PreferenceCategory>
+</PreferenceScreen>

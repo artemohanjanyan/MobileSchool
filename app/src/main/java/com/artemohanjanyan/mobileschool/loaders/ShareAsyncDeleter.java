@@ -1,4 +1,4 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.loaders;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -16,6 +16,12 @@ public class ShareAsyncDeleter extends AsyncTask<String, Void, Void> {
 
     private static final String TAG = ShareAsyncDeleter.class.getSimpleName();
 
+    private Context context;
+
+    public ShareAsyncDeleter(Context context) {
+        this.context = context;
+    }
+
     @Override
     protected Void doInBackground(String... params) {
         String string = params[0];
@@ -26,9 +32,10 @@ public class ShareAsyncDeleter extends AsyncTask<String, Void, Void> {
         return null;
     }
 
-    private static String getPathFromURI(Uri uri) {
-        try (Cursor cursor = ApplicationContext.getInstance().getContentResolver()
+    private String getPathFromURI(Uri uri) {
+        try (Cursor cursor = context.getContentResolver()
                     .query(uri, new String[]{MediaStore.Images.Media.DATA}, null, null, null)) {
+            context = null;
             if (cursor == null) {
                 return null;
             }

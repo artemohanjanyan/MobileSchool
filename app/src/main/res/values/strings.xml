@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="app_name">Исполнители</string>
 
     <string name="no_internet">Отсутствует интернет-подключение</string>
@@ -7,6 +7,22 @@
 
     <string name="search">Поиск</string>
     <string name="search_hint">Что вы ищете?</string>
+
+    <string name="about">О программе</string>
+    <string name="about_text">Не костыль, а workaround!</string>
+
+    <string name="feedback">Обратная связь</string>
+    <string name="feedback_subject">Отзыв о приложении</string>
+
+    <string name="settings">Настройки</string>
+    <string name="settings_notifications">Уведомления при подключении гарнитуры</string>
+    <string name="settings_show_music">Предлагать открыть Яндекс.Музыку</string>
+    <string name="settings_show_radio">Предлагать открыть Яндекс.Радио</string>
+    <string name="headphones_plugged_in">Подключена гарнитура</string>
+    <string name="open_music">Открыть Яндекс.Музыку</string>
+    <string name="open_radio">Открыть Яндекс.Радио</string>
+    <string name="download_music">Загрузить Яндекс.Музыку</string>
+    <string name="download_radio">Загрузить Яндекс.Радио</string>
 
     <string name="published">%1$s, %2$s</string>
     <plurals name="albums">
@@ -31,4 +47,7 @@
     <string name="sample_description">Instant run-off voting is a system for selecting the most preferred candidate in an election. At the beginning of the process, each voter ranks the candidates from most preferred to least preferred. A series of automated voting rounds are then held to determine the overall winner.
 In each round, each voter casts a single vote for his most preferred remaining candidate. If a candidate receives strictly more than 50% of the votes cast in that round, that candidate is declared the winner of the election. Otherwise, the candidate with the fewest votes in that round is eliminated, and another round is held. If multiple candidates are tied for the least number of votes, they are all eliminated. If all the candidates are eliminated, the election ends without a winner.
 You are given the preferences of the voters in an election, and you must determine the outcome. There are N candidates numbered 0 to N-1, inclusive. The preferences are given in a String[] voters, where each element describes the preferences of a single voter. This is a permutation of the digits 0 to N-1 in decreasing order of preference. In other words, the first digit is the voter\'s most preferred candidate, the second digit is his second most preferred candidate, and so on. Return the number of the candidate who wins the election, or -1 if the election ends without a winner.</string>
+
+    <string name="preference_music"><xliff:g id="preference_key">music</xliff:g></string>
+    <string name="preference_radio"><xliff:g id="preference_key">radio</xliff:g></string>
 </resources>

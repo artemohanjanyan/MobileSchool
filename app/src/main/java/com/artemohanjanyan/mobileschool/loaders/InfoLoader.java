@@ -1,15 +1,17 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.loaders;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
 import android.os.OperationCanceledException;
+import android.support.v4.content.AsyncTaskLoader;
 import android.text.TextUtils;
 import android.util.JsonReader;
 import android.util.Log;
+
+import com.artemohanjanyan.mobileschool.DbHelper;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +19,19 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.artemohanjanyan.mobileschool.DbHelper.*;
+import static com.artemohanjanyan.mobileschool.DbHelper.ALBUMS;
+import static com.artemohanjanyan.mobileschool.DbHelper.BIG_COVER;
+import static com.artemohanjanyan.mobileschool.DbHelper.DELIMITER;
+import static com.artemohanjanyan.mobileschool.DbHelper.DESCRIPTION;
+import static com.artemohanjanyan.mobileschool.DbHelper.DESCRIPTION_LOWER;
+import static com.artemohanjanyan.mobileschool.DbHelper.GENRES;
+import static com.artemohanjanyan.mobileschool.DbHelper.ID;
+import static com.artemohanjanyan.mobileschool.DbHelper.LINK;
+import static com.artemohanjanyan.mobileschool.DbHelper.NAME;
+import static com.artemohanjanyan.mobileschool.DbHelper.NAME_LOWER;
+import static com.artemohanjanyan.mobileschool.DbHelper.SMALL_COVER;
+import static com.artemohanjanyan.mobileschool.DbHelper.TABLE_NAME;
+import static com.artemohanjanyan.mobileschool.DbHelper.TRACKS;
 
 /**
  * Loads description of artists asynchronously.
@@ -76,10 +90,12 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
         }
 
         db = dbHelper.getReadableDatabase();
-        return db.query(TABLE_NAME, null,
+        Cursor cursor = db.query(TABLE_NAME, null,
                 searchString.equals("") ? null : TABLE_NAME + " MATCH ?",
                 searchString.equals("") ? null : new String[]{searchString},
                 null, null, null);
+        cursor.getCount(); // Forces data loading, query doesn't actually accesses database.
+        return cursor;
     }
 
     @Override

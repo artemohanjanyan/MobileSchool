@@ -1,9 +1,8 @@
-package com.artemohanjanyan.mobileschool;
+package com.artemohanjanyan.mobileschool.ui;
 
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,40 +12,58 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.artemohanjanyan.mobileschool.Artist;
+import com.artemohanjanyan.mobileschool.R;
+import com.squareup.picasso.Picasso;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Adapter for displaying artists' preview.
  */
-public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
-    public static final String TAG = Adapter.class.getSimpleName();
+    interface OnArtistSelectListener {
+        void onArtistSelected(Artist artist);
+    }
+
+    private static final String TAG = Adapter.class.getSimpleName();
 
     private Cursor cursor;
     private int lastPosition = -1;
     private int lastFetched = -1;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public Artist artist;
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        OnArtistSelectListener listener;
+        Context context;
 
-        public View view;
-        public ImageView cover;
-        public TextView name;
-        public TextView genres;
-        public TextView published;
+        Artist artist;
 
-        public ViewHolder(View view) {
+        View view;
+        @BindView(R.id.item_cover) ImageView cover;
+        @BindView(R.id.item_name) TextView name;
+        @BindView(R.id.item_genres) TextView genres;
+        @BindView(R.id.item_published) TextView published;
+
+        ViewHolder(View view) {
             super(view);
             this.view = view;
-            cover = (ImageView) view.findViewById(R.id.item_cover);
-            name = (TextView) view.findViewById(R.id.item_name);
-            genres = (TextView) view.findViewById(R.id.item_genres);
-            published = (TextView) view.findViewById(R.id.item_published);
+            context = view.getContext();
+            listener = (OnArtistSelectListener) view.getContext();
+
+            ButterKnife.bind(this, view);
+//            cover = (ImageView) view.findViewById(R.id.item_cover);
+//            name = (TextView) view.findViewById(R.id.item_name);
+//            genres = (TextView) view.findViewById(R.id.item_genres);
+//            published = (TextView) view.findViewById(R.id.item_published);
         }
     }
 
     /**
      * Creates adapter with empty list of artists.
      */
-    public Adapter() {
+    Adapter() {
         Log.d(TAG, "adapter created");
         this.cursor = null;
     }
@@ -60,11 +77,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Launch DescriptionActivity
-                Context context = viewHolder.view.getContext();
-                Intent intent = new Intent(context, DescriptionActivity.class);
-                intent.putExtra(DescriptionActivity.ARTIST_EXTRA, viewHolder.artist);
-                context.startActivity(intent);
+                // Launch DescriptionFragment
+                viewHolder.listener.onArtistSelected(viewHolder.artist);
             }
         });
         return viewHolder;
@@ -81,7 +95,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         holder.genres.setText(artist.getGenres());
         holder.published.setText(artist.getPublished(holder.cover.getContext()));
 
-        ApplicationContext.getInstance().getPicasso()
+
+        Picasso.with(holder.context)
                 .load(holder.artist.smallCover)
                 .into(holder.cover);
         lastFetched = Math.max(lastFetched, position);
@@ -90,7 +105,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         // Start from last not cached.
         for (int i = lastFetched - position + 1; i <= 10 && position + i < getItemCount(); ++i) {
             cursor.moveToPosition(position + i);
-            ApplicationContext.getInstance().getPicasso()
+            Picasso.with(holder.context)
                     .load(Artist.getSmallCover(cursor)).fetch();
             lastFetched = position + i;
         }
@@ -145,17 +160,17 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
      *                Adapter keeps the reference to this cursor
      *                until {@link Adapter#dropCursor()} is called.
      */
-    public void setCursor(Cursor cursor) {
+    void setCursor(Cursor cursor) {
         dropCursor();
         this.cursor = cursor;
-        notifyItemRangeInserted(0, this.cursor.getCount());
+        notifyDataSetChanged();
     }
 
     /**
      * Removes the reference to the cursor.
      */
-    public void dropCursor() {
-        notifyItemRangeRemoved(0, getItemCount());
+    void dropCursor() {
+        notifyDataSetChanged();
         cursor = null;
         lastPosition = -1;
         lastFetched = -1;
@@ -165,7 +180,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
      * Returns position of last displayed item.
      * Used for animation.
      */
-    public int getLastPosition() {
+    int getLastPosition() {
         return lastPosition;
     }
 
@@ -174,7 +189,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
      * Used for animation.
      * @param lastPosition index of the item before the first item to be animated.
      */
-    public void setLastPosition(int lastPosition) {
+    void setLastPosition(int lastPosition) {
         this.lastPosition = lastPosition;
     }
 }
