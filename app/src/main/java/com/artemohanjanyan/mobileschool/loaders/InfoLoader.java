@@ -90,10 +90,12 @@ public class InfoLoader extends AsyncTaskLoader<Cursor> {
         }
 
         db = dbHelper.getReadableDatabase();
-        return db.query(TABLE_NAME, null,
+        Cursor cursor = db.query(TABLE_NAME, null,
                 searchString.equals("") ? null : TABLE_NAME + " MATCH ?",
                 searchString.equals("") ? null : new String[]{searchString},
                 null, null, null);
+        cursor.getCount(); // Forces data loading, query doesn't actually accesses database.
+        return cursor;
     }
 
     @Override
